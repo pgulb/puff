@@ -1,0 +1,23 @@
+version: 3
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+    silent: true
+  build:
+    desc: Build puff binary
+    cmds:
+      - go1.25.3 build -o puff main.go
+  run:
+    desc: Run puff from source
+    cmds:
+      - go1.25.3 run .
+  logs:
+    desc: Read puff logfile
+    cmds:
+      - cat ~/.config/puff/puff.log
+  destroy:
+    desc: Remove puff directory
+    cmds:
+      - rm -rf ~/.config/puff
