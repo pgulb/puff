@@ -1,5 +1,11 @@
 package puff
 
+import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+)
+
 // Repo holds info about repo that a binary can be installed from
 type Repo struct {
 	Path   string
@@ -27,4 +33,33 @@ func AvailableRepos() *[]Repo {
 			Regexp: `\blinux-amd64\b`,
 		},
 	}
+}
+
+// reads metadata from metadata.json file
+func GetMetadata(cfgDir string) (*MetadataList, error) {
+	metadataFile := filepath.Join(cfgDir, "metadata.json")
+	data, err := os.ReadFile(metadataFile)
+	if err != nil {
+		return &MetadataList{}, err
+	}
+	var metadata MetadataList
+	err = json.Unmarshal(data, &metadata)
+	if err != nil {
+		return &MetadataList{}, err
+	}
+	return &metadata, nil
+}
+
+// stores MetadataList into metadata.json
+func SaveMetadata(meta *MetadataList, cfgDir string) error {
+	metadataFile := filepath.Join(cfgDir, "metadata.json")
+	data, err := json.MarshalIndent(meta, "", "  ")
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(metadataFile, data, 0600)
+	if err != nil {
+		return err
+	}
+	return nil
 }
