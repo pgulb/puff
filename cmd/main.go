@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	puff "github.com/pgulb/puff"
 )
@@ -95,7 +96,7 @@ func main() {
 					fmt.Println(err.Error())
 					log.Fatal(err.Error())
 				}
-				added, err := puff.AddMetaIfNotExists(metadata, &repo, release)
+				added, err := puff.AddMetaIfNotExists(metadata, &repo, release, nil)
 				if err != nil {
 					fmt.Println(err.Error())
 					log.Fatal(err.Error())
@@ -142,6 +143,56 @@ func main() {
 					fmt.Println("\nAvailable binaries:")
 					for _, v := range ghResp.Assets {
 						fmt.Println(v.Name)
+					}
+					nameParts := puff.PromptForNameParts()
+					for _, v := range ghResp.Assets {
+						containsAll := false
+						for _, part := range nameParts {
+							if strings.Contains(v.Name, part) {
+								containsAll = true
+							} else {
+								containsAll = false
+								break
+							}
+						}
+						if containsAll {
+							metadata, err := puff.GetMetadata(cfgDir)
+							if err != nil {
+								fmt.Println(err.Error())
+								log.Fatal(err.Error())
+							}
+							repo := &puff.Repo{Path: *installRepo}
+							release := &puff.Release{
+								Version: ghResp.Version,
+								Link:    v.URL,
+							}
+							added, err := puff.AddMetaIfNotExists(metadata,
+								repo,
+								release,
+								nameParts,
+							)
+							if added {
+								err = puff.SaveMetadata(metadata, cfgDir)
+								if err != nil {
+									fmt.Println(err.Error())
+									log.Fatal(err.Error())
+								}
+								err := puff.DownloadBinary(cfgDir, repo, release, ghPat)
+								if err != nil {
+									fmt.Println(err.Error())
+									log.Fatal(err.Error())
+								}
+								fmt.Printf(
+									"%s at version %s successfully installed!\n",
+									repo.Path,
+									release.Version,
+								)
+							} else {
+								log.Printf("%s at version %s already installed\n", repo.Path, release.Version)
+								fmt.Printf("%s at version %s already installed\n", repo.Path, release.Version)
+							}
+							break
+						}
 					}
 				} else {
 					log.Println("no assets found in release")
