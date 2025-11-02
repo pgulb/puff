@@ -116,3 +116,33 @@ func DownloadBinary(cfgDir string, repo *Repo, release *Release, ghPat string) e
 
 	return nil
 }
+
+// returns all assets from API for custom repo
+func GetLatestReleaseAssets(path string, ghPat string) (*GithubResponse, error) {
+	RepoUrl, err := url.JoinPath("https://api.github.com", "repos", path, "releases/latest")
+	c, req, err := AuthedClient(RepoUrl, ghPat)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusOK {
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		var releaseJson GithubResponse
+		err = json.Unmarshal(bodyBytes, &releaseJson)
+		if err != nil {
+			return nil, err
+		}
+		return &releaseJson, nil
+	} else {
+		return nil, err
+	}
+}
