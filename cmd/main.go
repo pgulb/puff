@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -48,5 +49,30 @@ func main() {
 			fmt.Println(err.Error())
 			log.Fatal(err.Error())
 		}
+	}
+
+	// flag commands
+
+	// puff --list
+	listAvailableRepos := flag.Bool("list", false, "list available repositories to download from")
+
+	// puff --add
+	installRepo := flag.String("add", "", "install binary from repository")
+
+	// end flags
+	flag.Parse()
+
+	// puff --list
+	if *listAvailableRepos {
+		fmt.Println("Available repositories: ")
+		for _, repo := range *puff.AvailableRepos() {
+			fmt.Printf("- %s - %s\n", repo.Path, repo.Desc)
+		}
+	}
+
+	// puff --add
+	if *installRepo != "" {
+		// TODO installation
+		fmt.Printf("would install %s\n", *installRepo)
 	}
 }
