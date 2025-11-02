@@ -51,6 +51,13 @@ func main() {
 		}
 	}
 
+	// write metadata.json skeleton file if not exists
+	err = puff.MaybeCreateMetadata(cfgDir)
+	if err != nil {
+		fmt.Println(err.Error())
+		log.Fatal(err.Error())
+	}
+
 	// flag commands
 
 	// puff --list
