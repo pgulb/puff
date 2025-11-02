@@ -126,3 +126,13 @@ func PromptForNameParts() []string {
 	}
 	return NameParts
 }
+
+// searches for custom repo in metadata
+func IsCustomRepoAdded(metadata *MetadataList, path string) Metadata {
+	for _, v := range metadata.Metadata {
+		if v.Path == path {
+			return v
+		}
+	}
+	return Metadata{}
+}
