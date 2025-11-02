@@ -8,11 +8,11 @@ tasks:
   build:
     desc: Build puff binary
     cmds:
-      - go1.25.3 build -o puff main.go
+      - go1.25.3 build -o puff cmd/main.go
   run:
     desc: Run puff from source
     cmds:
-      - go1.25.3 run .
+      - go1.25.3 run cmd/main.go
   logs:
     desc: Read puff logfile
     cmds:
