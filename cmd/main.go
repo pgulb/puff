@@ -74,5 +74,17 @@ func main() {
 	if *installRepo != "" {
 		// TODO installation
 		fmt.Printf("would install %s\n", *installRepo)
+		for _, repo := range *puff.AvailableRepos() {
+			if repo.Path == *installRepo {
+				release, err := puff.GetLatestRelease(&repo, ghPat)
+				if err != nil {
+					fmt.Println(err.Error())
+					log.Fatal(err.Error())
+				}
+				fmt.Printf("latest release: %s\n", release.Version)
+				fmt.Printf("download link: %s\n", release.Link)
+				break
+			}
+		}
 	}
 }
