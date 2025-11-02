@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 )
 
+// opens logs file, sets logging to it and returns file
 func MustSetupLog(cfgDir string) *os.File {
 	logFile := filepath.Join(cfgDir, "puff.log")
 	f, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
@@ -19,6 +20,7 @@ func MustSetupLog(cfgDir string) *os.File {
 	return f
 }
 
+// creates puff config directory
 func MustCreateCfgDir() string {
 	userDir, err := os.UserConfigDir()
 	if err != nil {
@@ -37,6 +39,7 @@ func MustCreateCfgDir() string {
 	return cfgDir
 }
 
+// reads Github PAT from file
 func GetGhPat(cfgDir string) (string, error) {
 	ghPat, err := os.ReadFile(filepath.Join(cfgDir, "gh_pat"))
 	if err != nil {
@@ -48,6 +51,7 @@ func GetGhPat(cfgDir string) (string, error) {
 	return string(ghPat), nil
 }
 
+// asks for Github PAT and writes it to file
 func PromptForGhPat(cfgDir string) error {
 	var ghPat string
 	fmt.Print("Enter your github personal access token: ")
@@ -60,6 +64,8 @@ func PromptForGhPat(cfgDir string) error {
 	return nil
 }
 
+// asks if user wants to add puff bin directory to PATH,
+// for .bashrc and .zshrc
 func PromptForAddToPath(cfgDir string) error {
 	var path string
 	shells := []string{".bashrc", ".zshrc"}
@@ -91,6 +97,7 @@ func PromptForAddToPath(cfgDir string) error {
 	return nil
 }
 
+// checks if user was prompted for adding puff bin directory to PATH
 func WasPromptedForPath(cfgDir string) (bool, error) {
 	_, err := os.Stat(filepath.Join(cfgDir, "path_asked"))
 	if err != nil {
@@ -103,6 +110,7 @@ func WasPromptedForPath(cfgDir string) (bool, error) {
 	return true, nil
 }
 
+// creates puff bin directory
 func MustCreateBinDir(cfgDir string) error {
 	binDir := filepath.Join(cfgDir, "bin")
 	err := os.Mkdir(binDir, 0750)
