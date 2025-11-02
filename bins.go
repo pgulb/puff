@@ -151,3 +151,16 @@ func Add(cfgDir string, installRepo *string, ghPat string) error {
 	}
 	return nil
 }
+
+// handling --update command
+func Update(cfgDir string, ghPat string, metadata *MetadataList) error {
+	fmt.Print("---\n\n")
+	for _, m := range metadata.Metadata {
+		err := Add(cfgDir, &m.Path, ghPat)
+		if err != nil {
+			return err
+		}
+		fmt.Print("---\n\n")
+	}
+	return nil
+}
