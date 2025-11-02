@@ -18,8 +18,9 @@ type Repo struct {
 
 // Metadata holds info about a single installed binary and its version
 type Metadata struct {
-	Path    string `json:"path"`
-	Version string `json:"version"`
+	Path      string   `json:"path"`
+	Version   string   `json:"version"`
+	NameParts []string `json:"name_parts"`
 }
 
 // MetadataList is used to store all installed bins' metadata on disk
