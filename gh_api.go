@@ -84,8 +84,8 @@ func GetLatestRelease(repo *Repo, ghPat string) (*Release, error) {
 
 // downloads a binary and puts into bin directory
 func DownloadBinary(cfgDir string, repo *Repo, release *Release, ghPat string) error {
-	log.Printf("downloading %s", release.Link)
-	fmt.Printf("downloading %s", release.Link)
+	log.Printf("downloading %s\n", release.Link)
+	fmt.Printf("downloading %s\n", release.Link)
 	c, req, err := AuthedClient(release.Link, ghPat)
 	if err != nil {
 		return err
