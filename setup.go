@@ -125,3 +125,21 @@ func MustCreateBinDir(cfgDir string) error {
 	}
 	return nil
 }
+
+// saves skeleton metadata.json if no file exists
+func MaybeCreateMetadata(cfgDir string) error {
+	metadataFile := filepath.Join(cfgDir, "metadata.json")
+	_, err := os.Stat(metadataFile)
+	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			metadata := &MetadataList{}
+			log.Println("saving skeleton metadata.json")
+			err = SaveMetadata(metadata, cfgDir)
+			if err != nil {
+				return err
+			}
+		}
+		return err
+	}
+	return nil
+}
