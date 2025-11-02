@@ -21,3 +21,12 @@ tasks:
     desc: Remove puff directory
     cmds:
       - rm -rf ~/.config/puff
+  destroy-bins:
+    desc: Remove puff bin/* and metadata.json
+    cmds:
+      - rm -rf ~/.config/puff/bin/*
+      - rm -f ~/.config/puff/metadata.json
+  metadata:
+    desc: Read metadata.json
+    cmds:
+      - cat ~/.config/puff/metadata.json
