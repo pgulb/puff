@@ -80,7 +80,7 @@ func main() {
 	// puff --add
 	if *installRepo != "" {
 		// TODO installation
-		fmt.Printf("would install %s\n", *installRepo)
+		fmt.Printf("installing %s\n", *installRepo)
 		for _, repo := range *puff.AvailableRepos() {
 			if repo.Path == *installRepo {
 				release, err := puff.GetLatestRelease(&repo, ghPat)
@@ -88,8 +88,37 @@ func main() {
 					fmt.Println(err.Error())
 					log.Fatal(err.Error())
 				}
-				fmt.Printf("latest release: %s\n", release.Version)
-				fmt.Printf("download link: %s\n", release.Link)
+				fmt.Printf("version found: %s\n", release.Version)
+				metadata, err := puff.GetMetadata(cfgDir)
+				if err != nil {
+					fmt.Println(err.Error())
+					log.Fatal(err.Error())
+				}
+				added, err := puff.AddMetaIfNotExists(metadata, &repo, release)
+				if err != nil {
+					fmt.Println(err.Error())
+					log.Fatal(err.Error())
+				}
+				if added {
+					err = puff.SaveMetadata(metadata, cfgDir)
+					if err != nil {
+						fmt.Println(err.Error())
+						log.Fatal(err.Error())
+					}
+					err := puff.DownloadBinary(cfgDir, &repo, release, ghPat)
+					if err != nil {
+						fmt.Println(err.Error())
+						log.Fatal(err.Error())
+					}
+					fmt.Printf(
+						"%s at version %s successfully installed!\n",
+						repo.Path,
+						release.Version,
+					)
+				} else {
+					log.Printf("%s at version %s already installed\n", repo.Path, release.Version)
+					fmt.Printf("%s at version %s already installed\n", repo.Path, release.Version)
+				}
 				break
 			}
 		}
