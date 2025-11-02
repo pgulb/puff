@@ -3,6 +3,7 @@ package puff
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -75,6 +76,7 @@ func AddMetaIfNotExists(
 	metadata *MetadataList,
 	repo *Repo,
 	release *Release,
+	nameParts []string,
 ) (bool, error) {
 	for i := range metadata.Metadata {
 		if metadata.Metadata[i].Path == repo.Path {
@@ -92,8 +94,9 @@ func AddMetaIfNotExists(
 	// add new entry if not found
 	log.Println("adding new metadata")
 	metadata.Metadata = append(metadata.Metadata, Metadata{
-		Path:    repo.Path,
-		Version: release.Version,
+		Path:      repo.Path,
+		Version:   release.Version,
+		NameParts: nameParts,
 	})
 	return true, nil
 }
@@ -105,4 +108,21 @@ func BinNameFromPath(repo *Repo) (string, error) {
 		return "", errors.New("invalid repo path")
 	}
 	return splitted[len(splitted)-1], nil
+}
+
+// ask user for name parts to search in binary name in release
+func PromptForNameParts() []string {
+	fmt.Println("Provide string to search in binary name to pick:")
+	fmt.Println("(You can add more strings afterward)")
+	var NameParts []string
+	for {
+		var name string
+		fmt.Scanln(&name)
+		if name == "" {
+			break
+		}
+		NameParts = append(NameParts, name)
+		fmt.Println("Provide another string or press enter:")
+	}
+	return NameParts
 }
