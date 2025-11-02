@@ -66,6 +66,9 @@ func main() {
 	// puff --add
 	installRepo := flag.String("add", "", "install binary from repository")
 
+	// puff --upd
+	updateBins := flag.Bool("upd", false, "update all installed binaries")
+
 	// end flags
 	flag.Parse()
 
@@ -80,7 +83,27 @@ func main() {
 
 	// puff --add
 	if *installRepo != "" {
-		puff.Add(cfgDir, installRepo, ghPat)
+		err := puff.Add(cfgDir, installRepo, ghPat)
+		if err != nil {
+			fmt.Println(err.Error())
+			log.Fatal(err.Error())
+		}
+		return
+	}
+
+	// puff --upd
+	if *updateBins {
+		fmt.Println("Updating all installed binaries")
+		metadata, err := puff.GetMetadata(cfgDir)
+		if err != nil {
+			fmt.Println(err.Error())
+			log.Fatal(err.Error())
+		}
+		err = puff.Update(cfgDir, ghPat, metadata)
+		if err != nil {
+			fmt.Println(err.Error())
+			log.Fatal(err.Error())
+		}
 		return
 	}
 }
