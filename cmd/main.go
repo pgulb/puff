@@ -75,11 +75,11 @@ func main() {
 		for _, repo := range *puff.AvailableRepos() {
 			fmt.Printf("- %s - %s\n", repo.Path, repo.Desc)
 		}
+		return
 	}
 
 	// puff --add
 	if *installRepo != "" {
-		// TODO installation
 		fmt.Printf("installing %s\n", *installRepo)
 		found := false
 		for _, repo := range *puff.AvailableRepos() {
@@ -127,6 +127,31 @@ func main() {
 		if !found {
 			fmt.Println("binary not found in featured repos")
 			log.Println("binary not in featured repos")
+			ghResp, err := puff.GetLatestReleaseAssets(*installRepo, ghPat)
+			if err != nil {
+				fmt.Println(err.Error())
+				log.Fatal(err.Error())
+			}
+			if ghResp != nil {
+				if ghResp.Assets != nil {
+					if len(ghResp.Assets) == 0 {
+						log.Println("no assets found in release")
+						fmt.Println("no assets found in release")
+						return
+					}
+					fmt.Println("\nAvailable binaries:")
+					for _, v := range ghResp.Assets {
+						fmt.Println(v.Name)
+					}
+				} else {
+					log.Println("no assets found in release")
+					fmt.Println("no assets found in release")
+				}
+			} else {
+				log.Println("no release found")
+				fmt.Println("no release found")
+			}
 		}
+		return
 	}
 }
