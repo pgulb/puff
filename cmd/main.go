@@ -81,6 +81,7 @@ func main() {
 	if *installRepo != "" {
 		// TODO installation
 		fmt.Printf("installing %s\n", *installRepo)
+		found := false
 		for _, repo := range *puff.AvailableRepos() {
 			if repo.Path == *installRepo {
 				release, err := puff.GetLatestRelease(&repo, ghPat)
@@ -119,8 +120,13 @@ func main() {
 					log.Printf("%s at version %s already installed\n", repo.Path, release.Version)
 					fmt.Printf("%s at version %s already installed\n", repo.Path, release.Version)
 				}
+				found = true
 				break
 			}
+		}
+		if !found {
+			fmt.Println("binary not found in featured repos")
+			log.Println("binary not in featured repos")
 		}
 	}
 }
