@@ -2,8 +2,11 @@ package puff
 
 import (
 	"encoding/json"
+	"errors"
+	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Repo holds info about repo that a binary can be installed from
@@ -52,6 +55,7 @@ func GetMetadata(cfgDir string) (*MetadataList, error) {
 
 // stores MetadataList into metadata.json
 func SaveMetadata(meta *MetadataList, cfgDir string) error {
+	log.Println("saving metadata.json")
 	metadataFile := filepath.Join(cfgDir, "metadata.json")
 	data, err := json.MarshalIndent(meta, "", "  ")
 	if err != nil {
@@ -62,4 +66,42 @@ func SaveMetadata(meta *MetadataList, cfgDir string) error {
 		return err
 	}
 	return nil
+}
+
+// add Repo to MetadataList if not present,
+// returns false if no changes
+func AddMetaIfNotExists(
+	metadata *MetadataList,
+	repo *Repo,
+	release *Release,
+) (bool, error) {
+	for i := range metadata.Metadata {
+		if metadata.Metadata[i].Path == repo.Path {
+			// no action required
+			if metadata.Metadata[i].Version == release.Version {
+				log.Println("no action required")
+				return false, nil
+			}
+			// update version in metadata entry
+			log.Println("new version")
+			metadata.Metadata[i].Version = release.Version
+			return true, nil
+		}
+	}
+	// add new entry if not found
+	log.Println("adding new metadata")
+	metadata.Metadata = append(metadata.Metadata, Metadata{
+		Path:    repo.Path,
+		Version: release.Version,
+	})
+	return true, nil
+}
+
+// extract binary name from repo path
+func BinNameFromPath(repo *Repo) (string, error) {
+	splitted := strings.Split(repo.Path, "/")
+	if len(splitted) == 0 {
+		return "", errors.New("invalid repo path")
+	}
+	return splitted[len(splitted)-1], nil
 }
