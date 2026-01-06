@@ -40,7 +40,7 @@ func AvailableRepos() *[]Repo {
 		{
 			Path:   "charmbracelet/glow",
 			Desc:   "Render markdown on the CLI, with pizzazz!",
-			Regexp: `Linux_x86_64\.tar\.gz`,
+			Regexp: `Linux_x86_64\.tar\.gz$`,
 		},
 	}
 }
