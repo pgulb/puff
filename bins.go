@@ -187,6 +187,7 @@ func Remove(cfgDir string, removeRepo *string) error {
 					fmt.Scanln(&input)
 					if strings.ToLower(input) == "y" {
 						err := os.Remove(filepath.Join(binDir, v.Name()))
+						fmt.Println("removing binary")
 						if err != nil {
 							return err
 						}
