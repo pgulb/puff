@@ -1,6 +1,9 @@
 package puff
 
 import (
+	"archive/tar"
+	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -82,6 +86,75 @@ func GetLatestRelease(repo *Repo, ghPat string) (*Release, error) {
 	}
 }
 
+// saves binary directly to bin or unpacks it if it's .tar.gz
+func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName string) error {
+	savePath := filepath.Join(cfgDir, "bin", binName)
+	matched, err := regexp.MatchString(`\.tar\.gz$`, assetName)
+	if err != nil {
+		return err
+	}
+	matchedTgz, err := regexp.MatchString(`\.tgz$`, assetName)
+	if err != nil {
+		return err
+	}
+	if matched || matchedTgz {
+		// unpack .tar.gz
+		fmt.Printf("unpacking %s\n", assetName)
+		log.Printf("unpacking %s\n", assetName)
+		bodyReader := bytes.NewReader(bodyBytes)
+		zr, err := gzip.NewReader(bodyReader)
+		if err != nil {
+			return err
+		}
+		defer zr.Close()
+		degzippedBytes, err := io.ReadAll(zr)
+		if err != nil {
+			return err
+		}
+		degzippedBody := bytes.NewReader(degzippedBytes)
+		tr := tar.NewReader(degzippedBody)
+		for {
+			hdr, err := tr.Next()
+			if err == io.EOF {
+				break // End of archive
+			}
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("%s | %s\n", hdr.Name, binName)
+			var nameToCompare string
+			// handle possible paths in tarball
+			if strings.Contains(hdr.Name, "/") {
+				nameToCompare = strings.Split(hdr.Name, "/")[len(strings.Split(hdr.Name, "/"))-1]
+			} else {
+				nameToCompare = hdr.Name
+			}
+			if nameToCompare == binName {
+				// Write the file
+				binBytes, err := io.ReadAll(tr)
+				if err != nil {
+					return err
+				}
+				fmt.Printf("writing %s to %s\n", binName, savePath)
+				log.Printf("writing %s to %s\n", binName, savePath)
+				err = os.WriteFile(savePath, binBytes, 0750)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	} else {
+		// save directly
+		fmt.Printf("writing %s to %s\n", binName, savePath)
+		log.Printf("writing %s to %s\n", binName, savePath)
+		err := os.WriteFile(savePath, bodyBytes, 0750)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // downloads a binary and puts into bin directory
 func DownloadBinary(cfgDir string, repo *Repo, release *Release, ghPat string) error {
 	log.Printf("downloading %s\n", release.Link)
@@ -106,9 +179,12 @@ func DownloadBinary(cfgDir string, repo *Repo, release *Release, ghPat string) e
 		if err != nil {
 			return err
 		}
-		savePath := filepath.Join(cfgDir, "bin", binName)
-		log.Printf("writing %s to %s\n", binName, savePath)
-		err = os.WriteFile(savePath, bodyBytes, 0750)
+		err = saveOrUnpack(
+			cfgDir,
+			bodyBytes,
+			binName,
+			strings.Split(release.Link, "/")[len(strings.Split(release.Link, "/"))-1],
+		)
 		if err != nil {
 			return err
 		}
