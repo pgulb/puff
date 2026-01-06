@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// handling --add command for featured repos
+// handling add command for featured repos
 func addFeatured(cfgDir string, repo Repo, ghPat string) error {
 	release, err := GetLatestRelease(&repo, ghPat)
 	if err != nil {
@@ -42,7 +42,7 @@ func addFeatured(cfgDir string, repo Repo, ghPat string) error {
 	return nil
 }
 
-// handling --add command for custom repos
+// handling add command for custom repos
 func addCustom(cfgDir string, installRepo *string, ghPat string) error {
 	fmt.Println("binary not found in featured repos")
 	log.Println("binary not in featured repos")
@@ -131,7 +131,7 @@ func addCustom(cfgDir string, installRepo *string, ghPat string) error {
 	return nil
 }
 
-// handling --add command
+// handling add command
 func Add(cfgDir string, installRepo *string, ghPat string) error {
 	fmt.Printf("installing %s\n", *installRepo)
 	found := false
@@ -152,7 +152,7 @@ func Add(cfgDir string, installRepo *string, ghPat string) error {
 	return nil
 }
 
-// handling --update command
+// handling update command
 func Update(cfgDir string, ghPat string, metadata *MetadataList) error {
 	fmt.Print("---\n\n")
 	for _, m := range metadata.Metadata {

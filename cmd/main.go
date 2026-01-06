@@ -1,13 +1,21 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"os"
 
 	puff "github.com/pgulb/puff"
 )
+
+func printHelp() {
+	fmt.Println("puff - a tool for managing binary installations")
+	fmt.Println("Usage:")
+	fmt.Println("  puff list -> list available repositories")
+	fmt.Println("  puff add <repo> -> install binary from non-listed repo")
+	fmt.Println("  puff upd -> update all installed binaries")
+	os.Exit(1)
+}
 
 func main() {
 	// logging init
@@ -58,41 +66,27 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	// flag commands
-
-	// puff --list
-	listAvailableRepos := flag.Bool("list", false, "list available repositories to download from")
-
-	// puff --add
-	installRepo := flag.String("add", "", "install binary from repository")
-
-	// puff --upd
-	updateBins := flag.Bool("upd", false, "update all installed binaries")
-
-	// end flags
-	flag.Parse()
-
-	// puff --list
-	if *listAvailableRepos {
+	// commands
+	if len(os.Args) < 2 {
+		printHelp()
+	}
+	switch os.Args[1] {
+	case "list":
 		fmt.Println("Available repositories: ")
 		for _, repo := range *puff.AvailableRepos() {
 			fmt.Printf("- %s - %s\n", repo.Path, repo.Desc)
 		}
-		return
-	}
-
-	// puff --add
-	if *installRepo != "" {
+	case "add":
+		if len(os.Args) < 3 {
+			printHelp()
+		}
+		installRepo := &os.Args[2]
 		err := puff.Add(cfgDir, installRepo, ghPat)
 		if err != nil {
 			fmt.Println(err.Error())
 			log.Fatal(err.Error())
 		}
-		return
-	}
-
-	// puff --upd
-	if *updateBins {
+	case "upd":
 		fmt.Println("Updating all installed binaries")
 		metadata, err := puff.GetMetadata(cfgDir)
 		if err != nil {
@@ -104,6 +98,7 @@ func main() {
 			fmt.Println(err.Error())
 			log.Fatal(err.Error())
 		}
-		return
+	default:
+		printHelp()
 	}
 }
