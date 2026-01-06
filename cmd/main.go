@@ -11,8 +11,8 @@ import (
 func printHelp() {
 	fmt.Println("puff - a tool for managing binary installations")
 	fmt.Println("Usage:")
-	fmt.Println("  puff list -> list available repositories")
-	fmt.Println("  puff add <repo> -> install binary from non-listed repo")
+	fmt.Println("  puff list -> list repositories with pre-added regex for release name")
+	fmt.Println("  puff add <repo> -> install binary from repo")
 	fmt.Println("  puff upd -> update all installed binaries")
 	fmt.Println("  puff rm <repo> -> remove installed binary")
 	os.Exit(1)
