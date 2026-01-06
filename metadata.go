@@ -47,6 +47,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "Run your GitHub Actions locally",
 			Regexp: `^act_Linux_x86_64\.tar\.gz$`,
 		},
+		{
+			Path:   "coreos/butane",
+			Desc:   "Butane translates human-readable Butane Configs into machine-readable Ignition Configs.",
+			Regexp: `^butane-x86_64-unknown-linux-gnu$`,
+		},
 	}
 }
 
