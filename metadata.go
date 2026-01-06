@@ -42,6 +42,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "Render markdown on the CLI, with pizzazz!",
 			Regexp: `Linux_x86_64\.tar\.gz$`,
 		},
+		{
+			Path:   "nektos/act",
+			Desc:   "Run your GitHub Actions locally",
+			Regexp: `^act_Linux_x86_64\.tar\.gz$`,
+		},
 	}
 }
 
