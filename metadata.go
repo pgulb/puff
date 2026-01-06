@@ -52,6 +52,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "Butane translates human-readable Butane Configs into machine-readable Ignition Configs.",
 			Regexp: `^butane-x86_64-unknown-linux-gnu$`,
 		},
+		{
+			Path:   "pkgforge-dev/ghostty-appimage",
+			Desc:   "AppImage for Ghostty Terminal Emulator",
+			Regexp: `x86_64\.AppImage$`,
+		},
 	}
 }
 
