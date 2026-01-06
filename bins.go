@@ -3,6 +3,8 @@ package puff
 import (
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -161,6 +163,52 @@ func Update(cfgDir string, ghPat string, metadata *MetadataList) error {
 			return err
 		}
 		fmt.Print("---\n\n")
+	}
+	return nil
+}
+
+func Remove(cfgDir string, removeRepo *string) error {
+	metadata, err := GetMetadata(cfgDir)
+	if err != nil {
+		return err
+	}
+	for _, v := range metadata.Metadata {
+		if v.Path == *removeRepo {
+			expectedBinary := strings.Split(v.Path, "/")[1]
+			binDir := filepath.Join(cfgDir, "bin")
+			binaries, err := os.ReadDir(binDir)
+			if err != nil {
+				return err
+			}
+			for _, v := range binaries {
+				if strings.Contains(v.Name(), expectedBinary) {
+					var input string
+					fmt.Printf("Do you want to remove %s? (y/n): ", v.Name())
+					fmt.Scanln(&input)
+					if strings.ToLower(input) == "y" {
+						err := os.Remove(filepath.Join(binDir, v.Name()))
+						if err != nil {
+							return err
+						}
+					} else {
+						fmt.Println("skipping removal")
+						return nil
+					}
+				}
+			}
+			fmt.Printf("removing %s from metadata\n", *removeRepo)
+			var newMeta []Metadata
+			for _, metaEntry := range metadata.Metadata {
+				if metaEntry.Path != *removeRepo {
+					newMeta = append(newMeta, metaEntry)
+				}
+			}
+			metadata.Metadata = newMeta
+			err = SaveMetadata(metadata, cfgDir)
+			if err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }

@@ -14,6 +14,7 @@ func printHelp() {
 	fmt.Println("  puff list -> list available repositories")
 	fmt.Println("  puff add <repo> -> install binary from non-listed repo")
 	fmt.Println("  puff upd -> update all installed binaries")
+	fmt.Println("  puff rm <repo> -> remove installed binary")
 	os.Exit(1)
 }
 
@@ -94,6 +95,16 @@ func main() {
 			log.Fatal(err.Error())
 		}
 		err = puff.Update(cfgDir, ghPat, metadata)
+		if err != nil {
+			fmt.Println(err.Error())
+			log.Fatal(err.Error())
+		}
+	case "rm":
+		if len(os.Args) < 3 {
+			printHelp()
+		}
+		removeRepo := &os.Args[2]
+		err := puff.Remove(cfgDir, removeRepo)
 		if err != nil {
 			fmt.Println(err.Error())
 			log.Fatal(err.Error())
