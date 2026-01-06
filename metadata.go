@@ -37,6 +37,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "Docker container controller with own HTTP API",
 			Regexp: `\blinux-amd64\b`,
 		},
+		{
+			Path:   "charmbracelet/glow",
+			Desc:   "Render markdown on the CLI, with pizzazz!",
+			Regexp: `Linux_x86_64\.tar\.gz`,
+		},
 	}
 }
 
