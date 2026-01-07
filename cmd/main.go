@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	puff "github.com/pgulb/puff"
 )
@@ -76,8 +77,20 @@ func main() {
 			}
 		}
 	case "search":
-		for _, repo := range *puff.AvailableRepos() {
-			fmt.Printf("- %s - %s\n", repo.Path, repo.Desc)
+		if len(os.Args) < 3 {
+			for _, repo := range *puff.AvailableRepos() {
+				fmt.Printf("- %s - %s\n", repo.Path, repo.Desc)
+			}
+		} else {
+			searchTerm := os.Args[2]
+			for _, repo := range *puff.AvailableRepos() {
+				if strings.Contains(
+					strings.ToLower(repo.Path),
+					strings.ToLower(searchTerm)) || strings.Contains(
+					strings.ToLower(repo.Desc), strings.ToLower(searchTerm)) {
+					fmt.Printf("- %s - %s\n", repo.Path, repo.Desc)
+				}
+			}
 		}
 	case "add":
 		if len(os.Args) < 3 {
