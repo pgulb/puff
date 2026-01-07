@@ -156,6 +156,23 @@ func Update(cfgDir string, ghPat string, metadata *MetadataList) error {
 		}
 		fmt.Print("---\n\n")
 	}
+
+	fmt.Println("updating puff")
+	puffRepo := Repo{Path: "pgulb/puff"}
+	puffRelease, err := GetLatestRelease(&puffRepo, ghPat)
+	if err != nil {
+		return err
+	}
+	if puffRelease.Version != Version {
+		fmt.Printf("new version available: %s\n", puffRelease.Version)
+		err := DownloadBinary(cfgDir, &puffRepo, puffRelease, ghPat)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("puff updated to version %s\n", puffRelease.Version)
+	} else {
+		fmt.Printf("puff is up to date at version %s\n", Version)
+	}
 	return nil
 }
 
