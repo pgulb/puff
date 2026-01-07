@@ -57,6 +57,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "AppImage for Ghostty Terminal Emulator",
 			Regexp: `x86_64\.AppImage$`,
 		},
+		{
+			Path:   "go-task/task",
+			Desc:   "A task runner / simpler Make alternative written in Go",
+			Regexp: `^task_linux_amd64\.tar\.gz$`,
+		},
 	}
 }
 
