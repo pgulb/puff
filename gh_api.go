@@ -137,6 +137,7 @@ func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName str
 				if err != nil {
 					return err
 				}
+				return nil
 			}
 		}
 	} else {
