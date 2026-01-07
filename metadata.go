@@ -123,6 +123,16 @@ func AvailableRepos() *[]Repo {
 			Desc:   "A cat clone with syntax highlighting and Git integration",
 			Regexp: `^bat-v.*-x86_64-unknown-linux-musl\.tar\.gz$`,
 		},
+		{
+			Path:   "Y2Z/monolith",
+			Desc:   "Save complete web pages as single HTML files",
+			Regexp: `^monolith-gnu-linux-x86_64$`,
+		},
+		{
+			Path:   "topgrade-rs/topgrade",
+			Desc:   "Upgrade all tools on the system",
+			Regexp: `^topgrade-v\d+\.\d+\.\d+-x86_64-unknown-linux-musl\.tar\.gz$`,
+		},
 	}
 }
 
