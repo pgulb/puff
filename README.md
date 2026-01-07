@@ -2,7 +2,7 @@
 
 ## what is puff?
 
-It's simple 'package' manager for downloading/updating binary releases from Github  
+it's simple 'package' manager for downloading/updating binary releases from Github  
 it has predefined repositories that can be installed  
 non-listed repositories can also be installed, but with one more step
 
