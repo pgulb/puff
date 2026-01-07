@@ -9,7 +9,7 @@ import (
 )
 
 func printHelp() {
-	fmt.Println("puff - a tool for managing binary installations")
+	fmt.Println("puff - simple binary package manager for GitHub releases")
 	fmt.Println("Usage:")
 	fmt.Println("  puff list -> list installed binaries")
 	fmt.Println("  puff search <name (opt.)> -> search pre-added repositories")
