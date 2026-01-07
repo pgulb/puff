@@ -11,8 +11,8 @@ import (
 func printHelp() {
 	fmt.Println("puff - a tool for managing binary installations")
 	fmt.Println("Usage:")
-	fmt.Println("  puff show -> show installed binaries")
-	fmt.Println("  puff list -> list repositories with pre-added regex for release name")
+	fmt.Println("  puff list -> list installed binaries")
+	fmt.Println("  puff search <name (opt.)> -> search pre-added repositories")
 	fmt.Println("  puff add <repo> -> install binary from repo")
 	fmt.Println("  puff upd -> update all installed binaries")
 	fmt.Println("  puff rm <repo> -> remove installed binary")
@@ -73,7 +73,7 @@ func main() {
 		printHelp()
 	}
 	switch os.Args[1] {
-	case "show":
+	case "list":
 		metadata, err := puff.GetMetadata(cfgDir)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -87,8 +87,7 @@ func main() {
 				fmt.Printf("- %s (version: %s)\n", v.Path, v.Version)
 			}
 		}
-	case "list":
-		fmt.Println("Available repositories: ")
+	case "search":
 		for _, repo := range *puff.AvailableRepos() {
 			fmt.Printf("- %s - %s\n", repo.Path, repo.Desc)
 		}
