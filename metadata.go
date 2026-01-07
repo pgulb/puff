@@ -93,6 +93,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "simple terminal UI for git commands",
 			Regexp: `^lazygit_.*_linux_x86_64\.tar\.gz$`,
 		},
+		{
+			Path:   "fastfetch-cli/fastfetch",
+			Desc:   "A maintained, feature-rich and performance oriented, neofetch like system information tool",
+			Regexp: `^fastfetch-linux-amd64\.tar\.gz$`,
+		},
 	}
 }
 
