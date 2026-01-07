@@ -83,6 +83,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "yq is a portable command-line YAML, JSON, XML, CSV, TOML, HCL and properties processor",
 			Regexp: `^yq_linux_amd64$`,
 		},
+		{
+			Path:   "jesseduffield/lazydocker",
+			Desc:   "The lazier way to manage everything docker",
+			Regexp: `^lazydocker_.*_Linux_x86_64\.tar\.gz$`,
+		},
 	}
 }
 
