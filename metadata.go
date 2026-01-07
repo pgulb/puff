@@ -108,6 +108,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "Lightweight and flexible command-line JSON processor",
 			Regexp: `^jq-linux64$`,
 		},
+		{
+			Path:   "dbrgn/tealdeer",
+			Desc:   "A fast tldr client for simplified and community-driven man pages",
+			Regexp: `^tealdeer-linux-x86_64-musl$`,
+		},
 	}
 }
 
