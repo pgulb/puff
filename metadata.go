@@ -88,6 +88,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "The lazier way to manage everything docker",
 			Regexp: `^lazydocker_.*_Linux_x86_64\.tar\.gz$`,
 		},
+		{
+			Path:   "jesseduffield/lazygit",
+			Desc:   "simple terminal UI for git commands",
+			Regexp: `^lazygit_.*_linux_x86_64\.tar\.gz$`,
+		},
 	}
 }
 
