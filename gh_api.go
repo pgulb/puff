@@ -119,7 +119,6 @@ func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName str
 			if err != nil {
 				return err
 			}
-			fmt.Printf("%s | %s\n", hdr.Name, binName)
 			var nameToCompare string
 			// handle possible paths in tarball
 			if strings.Contains(hdr.Name, "/") {
