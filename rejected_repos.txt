@@ -1,0 +1,6 @@
+stern/stern
+ouch-org/ouch
+Wilfred/difftastic
+sharkdp/hyperfine
+goreleaser/goreleaser
+rclone/rclone
