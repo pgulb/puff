@@ -63,6 +63,21 @@ func AvailableRepos() *[]Repo {
 			Desc:   "A task runner / simpler Make alternative written in Go",
 			Regexp: `^task_linux_amd64\.tar\.gz$`,
 		},
+		{
+			Path:   "eza-community/eza",
+			Desc:   "A modern alternative to ls",
+			Regexp: `^eza_x86_64-unknown-linux-musl\.tar\.gz$`,
+		},
+		{
+			Path:   "starship/starship",
+			Desc:   "The minimal, blazing-fast, and infinitely customizable prompt for any shell!",
+			Regexp: `^starship-x86_64-unknown-linux-musl\.tar\.gz$`,
+		},
+		{
+			Path:   "bootandy/dust",
+			Desc:   "A more intuitive version of du in rust",
+			Regexp: `^dust-v.*-x86_64-unknown-linux-musl\.tar\.gz$`,
+		},
 	}
 }
 
