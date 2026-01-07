@@ -118,6 +118,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "Friendly and fast tool for sending HTTP requests",
 			Regexp: `^xh-.*-x86_64-unknown-linux-musl\.tar\.gz$`,
 		},
+		{
+			Path:   "sharkdp/bat",
+			Desc:   "A cat clone with syntax highlighting and Git integration",
+			Regexp: `^bat-v.*-x86_64-unknown-linux-musl\.tar\.gz$`,
+		},
 	}
 }
 
