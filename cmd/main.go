@@ -13,9 +13,10 @@ func printHelp() {
 	fmt.Println("Usage:")
 	fmt.Println("  puff list -> list installed binaries")
 	fmt.Println("  puff search <name (opt.)> -> search pre-added repositories")
-	fmt.Println("  puff add <repo> -> install binary from repo")
+	fmt.Println("  puff add <repo> <repo>... -> install binary from repo(s)")
 	fmt.Println("  puff upd -> update all installed binaries")
-	fmt.Println("  puff rm <repo> -> remove installed binary")
+	fmt.Println("  puff rm <repo> <repo>... -> remove installed binary/ies")
+	fmt.Println("  puff version|--version|-v -> print puff version")
 	os.Exit(1)
 }
 
@@ -96,10 +97,12 @@ func main() {
 		if len(os.Args) < 3 {
 			printHelp()
 		}
-		installRepo := &os.Args[2]
-		err := puff.Add(cfgDir, installRepo, ghPat)
-		if err != nil {
-			fmt.Println(err.Error())
+		reposToAdd := os.Args[2:]
+		for _, installRepo := range reposToAdd {
+			err := puff.Add(cfgDir, &installRepo, ghPat)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		}
 	case "upd":
 		fmt.Println("Updating all installed binaries")
@@ -115,10 +118,12 @@ func main() {
 		if len(os.Args) < 3 {
 			printHelp()
 		}
-		removeRepo := &os.Args[2]
-		err := puff.Remove(cfgDir, removeRepo)
-		if err != nil {
-			fmt.Println(err.Error())
+		reposToRemove := os.Args[2:]
+		for _, removeRepo := range reposToRemove {
+			err := puff.Remove(cfgDir, &removeRepo)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		}
 	case "version", "--version", "-v":
 		fmt.Println(puff.Version)
