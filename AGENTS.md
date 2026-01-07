@@ -7,6 +7,32 @@ This file contains instructions for AI coding agents working on the puff project
 - **Purpose**: Package manager for GitHub binary releases
 - **Architecture**: CLI tool with configuration stored in `~/.config/puff/`
 
+## Featured Repositories Management
+
+### Adding New Featured Repositories
+- Featured repositories are predefined popular CLI tools that users can install with `puff add <repo>`
+- Located in `metadata.go` in the `AvailableRepos()` function
+- Each repo requires:
+  - `Path`: GitHub repository path (e.g., "sharkdp/bat")
+  - `Desc`: Short description of the tool
+  - `Regexp`: Regex pattern to match the Linux x86_64 binary asset in GitHub releases
+
+### Repository Selection Criteria
+- Must provide pre-compiled static Linux x86_64 binaries in GitHub releases
+- Popular and widely-used CLI tools for development/DevOps
+- No complex dependencies or installation requirements
+- Not GUI applications or tools requiring special terminal features
+- Complements existing featured repos without significant overlap
+
+### Testing New Repositories
+1. Verify GitHub releases contain Linux x86_64 binaries
+2. Test regex pattern matches the correct asset name
+3. Run `puff add <repo>` to install and verify functionality
+4. Update this document with new additions
+
+### Rejected Repositories
+See `rejected_repos.txt` for repositories that were considered but rejected for inclusion. This file helps avoid re-evaluating the same repos and documents rejection reasons.
+
 ## Build/Lint/Test Commands
 
 ### Building
