@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+var Version = "v0.1.0"
+
 // Repo holds info about repo that a binary can be installed from
 type Repo struct {
 	Path   string

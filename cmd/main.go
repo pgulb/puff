@@ -8,8 +8,6 @@ import (
 	puff "github.com/pgulb/puff"
 )
 
-var Version = "v0.1.0"
-
 func printHelp() {
 	fmt.Println("puff - a tool for managing binary installations")
 	fmt.Println("Usage:")
@@ -123,7 +121,7 @@ func main() {
 			fmt.Println(err.Error())
 		}
 	case "version", "--version", "-v":
-		fmt.Println(Version)
+		fmt.Println(puff.Version)
 	default:
 		printHelp()
 	}
