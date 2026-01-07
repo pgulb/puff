@@ -78,6 +78,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "A more intuitive version of du in rust",
 			Regexp: `^dust-v.*-x86_64-unknown-linux-musl\.tar\.gz$`,
 		},
+		{
+			Path:   "mikefarah/yq",
+			Desc:   "yq is a portable command-line YAML, JSON, XML, CSV, TOML, HCL and properties processor",
+			Regexp: `^yq_linux_amd64$`,
+		},
 	}
 }
 
