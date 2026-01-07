@@ -113,6 +113,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "A fast tldr client for simplified and community-driven man pages",
 			Regexp: `^tealdeer-linux-x86_64-musl$`,
 		},
+		{
+			Path:   "ducaale/xh",
+			Desc:   "Friendly and fast tool for sending HTTP requests",
+			Regexp: `^xh-.*-x86_64-unknown-linux-musl\.tar\.gz$`,
+		},
 	}
 }
 
