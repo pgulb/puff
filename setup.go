@@ -4,27 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
 )
-
-// opens logs file, sets logging to it and returns file
-func MustSetupLog(cfgDir string) *os.File {
-	logFile := filepath.Join(cfgDir, "puff.log")
-	f, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("error opening file: %v", err)
-	}
-	log.SetOutput(f)
-	return f
-}
 
 // creates puff config directory
 func MustCreateCfgDir() string {
 	userDir, err := os.UserConfigDir()
 	if err != nil {
-		log.Fatalf("error getting user config dir: %v", err)
+		fmt.Printf("error getting user config dir: %v", err)
+		os.Exit(1)
 	}
 	cfgDir := filepath.Join(userDir, "puff")
 	err = os.Mkdir(cfgDir, 0750)
@@ -32,7 +21,8 @@ func MustCreateCfgDir() string {
 		if errors.Is(err, fs.ErrExist) {
 			return cfgDir
 		}
-		log.Fatalf("error creating %s config directory: %v", cfgDir, err)
+		fmt.Printf("error creating %s config directory: %v", cfgDir, err)
+		os.Exit(1)
 	} else {
 		fmt.Printf("Created config directory %s\n", cfgDir)
 	}
@@ -60,7 +50,7 @@ func PromptForGhPat(cfgDir string) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("gh_pat written to %s\n", filepath.Join(cfgDir, "gh_pat"))
+	fmt.Printf("gh_pat written to %s\n", filepath.Join(cfgDir, "gh_pat"))
 	return nil
 }
 
@@ -77,7 +67,7 @@ func PromptForAddToPath(cfgDir string) error {
 			if err != nil {
 				return err
 			}
-			log.Printf("adding puff bin dir to PATH in %s\n", shell)
+			fmt.Printf("adding puff bin dir to PATH in %s\n", shell)
 			binDir := filepath.Join(cfgDir, "bin")
 			f, err := os.OpenFile(filepath.Join(home, shell), os.O_APPEND|os.O_WRONLY, 0600)
 			if err != nil {
@@ -104,7 +94,7 @@ func WasPromptedForPath(cfgDir string) (bool, error) {
 		if errors.Is(err, fs.ErrNotExist) {
 			return false, nil
 		}
-		log.Println("user was not prompted for adding to PATH yet")
+		fmt.Println("user was not prompted for adding to PATH yet")
 		return false, err
 	}
 	return true, nil
@@ -120,7 +110,6 @@ func MustCreateBinDir(cfgDir string) error {
 		}
 		return err
 	} else {
-		log.Printf("Created bin directory %s\n", binDir)
 		fmt.Printf("Created bin directory %s\n", binDir)
 	}
 	return nil
@@ -133,7 +122,7 @@ func MaybeCreateMetadata(cfgDir string) error {
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
 			metadata := &MetadataList{}
-			log.Println("saving skeleton metadata.json")
+			fmt.Println("saving skeleton metadata.json")
 			err = SaveMetadata(metadata, cfgDir)
 			if err != nil {
 				return err

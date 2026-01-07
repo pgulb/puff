@@ -2,7 +2,6 @@ package puff
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -38,7 +37,6 @@ func addFeatured(cfgDir string, repo Repo, ghPat string) error {
 			release.Version,
 		)
 	} else {
-		log.Printf("%s at version %s already installed\n", repo.Path, release.Version)
 		fmt.Printf("%s at version %s already installed\n", repo.Path, release.Version)
 	}
 	return nil
@@ -47,7 +45,6 @@ func addFeatured(cfgDir string, repo Repo, ghPat string) error {
 // handling add command for custom repos
 func addCustom(cfgDir string, installRepo *string, ghPat string) error {
 	fmt.Println("binary not found in featured repos")
-	log.Println("binary not in featured repos")
 	ghResp, err := GetLatestReleaseAssets(*installRepo, ghPat)
 	if err != nil {
 		return err
@@ -55,7 +52,6 @@ func addCustom(cfgDir string, installRepo *string, ghPat string) error {
 	if ghResp != nil {
 		if ghResp.Assets != nil {
 			if len(ghResp.Assets) == 0 {
-				log.Println("no assets found in release")
 				fmt.Println("no assets found in release")
 				return nil
 			}
@@ -67,7 +63,6 @@ func addCustom(cfgDir string, installRepo *string, ghPat string) error {
 			repo := Repo{Path: *installRepo}
 			var nameParts []string
 			if isAdded.Version != "" {
-				log.Printf("%s custom repo already added\n", *installRepo)
 				fmt.Printf("%s custom repo already added\n", *installRepo)
 				nameParts = isAdded.NameParts
 			} else {
@@ -116,18 +111,15 @@ func addCustom(cfgDir string, installRepo *string, ghPat string) error {
 							release.Version,
 						)
 					} else {
-						log.Printf("%s at version %s already installed\n", repo.Path, release.Version)
 						fmt.Printf("%s at version %s already installed\n", repo.Path, release.Version)
 					}
 					break
 				}
 			}
 		} else {
-			log.Println("no assets found in release")
 			fmt.Println("no assets found in release")
 		}
 	} else {
-		log.Println("no release found")
 		fmt.Println("no release found")
 	}
 	return nil

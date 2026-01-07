@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -100,7 +99,6 @@ func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName str
 	if matched || matchedTgz {
 		// unpack .tar.gz
 		fmt.Printf("unpacking %s\n", assetName)
-		log.Printf("unpacking %s\n", assetName)
 		bodyReader := bytes.NewReader(bodyBytes)
 		zr, err := gzip.NewReader(bodyReader)
 		if err != nil {
@@ -119,7 +117,7 @@ func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName str
 				break // End of archive
 			}
 			if err != nil {
-				log.Fatal(err)
+				return err
 			}
 			fmt.Printf("%s | %s\n", hdr.Name, binName)
 			var nameToCompare string
@@ -136,7 +134,6 @@ func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName str
 					return err
 				}
 				fmt.Printf("writing %s to %s\n", binName, savePath)
-				log.Printf("writing %s to %s\n", binName, savePath)
 				err = os.WriteFile(savePath, binBytes, 0750)
 				if err != nil {
 					return err
@@ -146,7 +143,6 @@ func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName str
 	} else {
 		// save directly
 		fmt.Printf("writing %s to %s\n", binName, savePath)
-		log.Printf("writing %s to %s\n", binName, savePath)
 		err := os.WriteFile(savePath, bodyBytes, 0750)
 		if err != nil {
 			return err
@@ -157,7 +153,6 @@ func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName str
 
 // downloads a binary and puts into bin directory
 func DownloadBinary(cfgDir string, repo *Repo, release *Release, ghPat string) error {
-	log.Printf("downloading %s\n", release.Link)
 	fmt.Printf("downloading %s\n", release.Link)
 	c, req, err := AuthedClient(release.Link, ghPat)
 	if err != nil {
