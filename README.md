@@ -2,9 +2,9 @@
 
 ## what is puff?
 
-it's simple 'package' manager for downloading/updating binary releases from Github  
-it has predefined repositories that can be installed  
-non-listed repositories can also be installed, but with one more step
+- it's simple 'package' manager for downloading/updating binary releases from Github  
+- it has predefined repositories that can be installed  
+- non-listed repositories can also be installed, but with one more step
 
 ![Made with VHS](https://vhs.charm.sh/vhs-5x2HtvNFoK5MJIfy2fxR1t.gif)
 
@@ -13,9 +13,9 @@ non-listed repositories can also be installed, but with one more step
 ```sh
 curl -sSL https://raw.githubusercontent.com/pgulb/puff/refs/heads/main/install.sh | bash
 ```
-it will ask for Github Personal Access Token during first use  
-without PAT it would hit rate limits for Github API  
-the PAT does not need any permissions  
+- it will ask for Github Personal Access Token during first use  
+- without PAT it would hit rate limits for Github API  
+- the PAT does not need any permissions  
 
 ## usage
 
