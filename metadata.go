@@ -98,6 +98,16 @@ func AvailableRepos() *[]Repo {
 			Desc:   "A maintained, feature-rich and performance oriented, neofetch like system information tool",
 			Regexp: `^fastfetch-linux-amd64\.tar\.gz$`,
 		},
+		{
+			Path:   "sharkdp/fd",
+			Desc:   "Simple, fast and user-friendly alternative to find",
+			Regexp: `^fd-.*-x86_64-unknown-linux-musl\.tar\.gz$`,
+		},
+		{
+			Path:   "stedolan/jq",
+			Desc:   "Lightweight and flexible command-line JSON processor",
+			Regexp: `^jq-linux64$`,
+		},
 	}
 }
 
