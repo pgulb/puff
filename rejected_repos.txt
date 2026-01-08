@@ -34,3 +34,7 @@ imsnif/bandwhich
 containers/podman
 containerd/nerdctl
 runfinch/finch
+kubernetes/kubectl
+docker/cli
+containers/skopeo
+containers/buildah
