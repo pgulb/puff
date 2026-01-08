@@ -38,3 +38,5 @@ kubernetes/kubectl
 docker/cli
 containers/skopeo
 containers/buildah
+aristocratos/btop
+wtfutil/wtf

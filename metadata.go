@@ -208,6 +208,21 @@ func AvailableRepos() *[]Repo {
 			Desc:   "A tool for exploring each layer in a docker image",
 			Regexp: `dive_.*_linux_amd64\.tar\.gz`,
 		},
+		{
+			Path:   "FairwindsOps/pluto",
+			Desc:   "Detect deprecated Kubernetes API versions",
+			Regexp: `pluto_.*_linux_amd64\.tar\.gz`,
+		},
+		{
+			Path:   "derailed/popeye",
+			Desc:   "A Kubernetes cluster resource sanitizer",
+			Regexp: `popeye_linux_amd64\.tar\.gz`,
+		},
+		{
+			Path:   "Lifailon/lazyjournal",
+			Desc:   "A TUI for reading logs from journald, auditd, file system, Docker containers, Compose stacks, Podman and Kubernetes pods with support for output coloring and multiple filtering modes.",
+			Regexp: `^lazyjournal-.*-linux-amd64$`,
+		},
 	}
 }
 
