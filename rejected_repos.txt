@@ -19,3 +19,4 @@ Canop/broot
 XAMPPRocky/tokei
 o2sh/onefetch
 ClementTsang/bottom
+wojciech-graj/doom-ascii
