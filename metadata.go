@@ -193,6 +193,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "Scanner for vulnerabilities in container images, file systems, and Git repositories",
 			Regexp: `^trivy_.*_Linux-64bit\.tar\.gz$`,
 		},
+		{
+			Path:   "FiloSottile/age",
+			Desc:   "A simple, modern and secure file encryption tool",
+			Regexp: `linux-amd64\.tar\.gz$`,
+		},
 	}
 }
 

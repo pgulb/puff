@@ -24,3 +24,5 @@ cloudflare/cfssl
 hashicorp/terraform
 kubernetes-sigs/kustomize
 helm/helm
+Byron/dua-cli
+printfn/fend
