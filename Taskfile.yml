@@ -13,10 +13,6 @@ tasks:
     desc: Run puff from source
     cmds:
       - go1.25.3 run cmd/main.go
-  logs:
-    desc: Read puff logfile
-    cmds:
-      - cat ~/.config/puff/puff.log
   destroy:
     desc: Remove puff directory
     cmds:
