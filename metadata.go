@@ -178,6 +178,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "Unclutter your .profile with an extensible shell environment manager",
 			Regexp: `^direnv\.linux-amd64$`,
 		},
+		{
+			Path:   "lsd-rs/lsd",
+			Desc:   "The next gen ls command",
+			Regexp: `^lsd-v.*-x86_64-unknown-linux-gnu\.tar\.gz$`,
+		},
 	}
 }
 
