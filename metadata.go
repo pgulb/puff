@@ -198,6 +198,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "A simple, modern and secure file encryption tool",
 			Regexp: `linux-amd64\.tar\.gz$`,
 		},
+		{
+			Path:   "kubernetes/kompose",
+			Desc:   "A tool to convert Docker Compose files to Kubernetes manifests",
+			Regexp: `^kompose-linux-amd64$`,
+		},
 	}
 }
 
