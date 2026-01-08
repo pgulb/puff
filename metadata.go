@@ -203,6 +203,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "A tool to convert Docker Compose files to Kubernetes manifests",
 			Regexp: `^kompose-linux-amd64$`,
 		},
+		{
+			Path:   "wagoodman/dive",
+			Desc:   "A tool for exploring each layer in a docker image",
+			Regexp: `dive_.*_linux_amd64\.tar\.gz`,
+		},
 	}
 }
 
