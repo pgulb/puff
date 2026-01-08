@@ -10,6 +10,7 @@ This file contains instructions for AI coding agents working on the puff project
 ## Featured Repositories Management
 
 ### Adding New Featured Repositories
+- when adding, make sure to do steps from 'Testing New Repositories' section
 - Featured repositories are predefined popular CLI tools that users can install with `puff add <repo>`
 - Located in `metadata.go` in the `AvailableRepos()` function
 - Each repo requires:
