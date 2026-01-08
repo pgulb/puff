@@ -189,22 +189,20 @@ func Remove(cfgDir string, removeRepo *string) error {
 			if err != nil {
 				return err
 			}
+			var removed bool
 			for _, v := range binaries {
-				if strings.Contains(v.Name(), expectedBinary) {
-					var input string
-					fmt.Printf("Do you want to remove %s? (y/n): ", v.Name())
-					fmt.Scanln(&input)
-					if strings.ToLower(input) == "y" {
-						err := os.Remove(filepath.Join(binDir, v.Name()))
-						fmt.Println("removing binary")
-						if err != nil {
-							return err
-						}
-					} else {
-						fmt.Println("skipping removal")
-						return nil
+				if v.Name() == expectedBinary {
+					fmt.Printf("removing %s binary\n", v.Name())
+					removed = true
+					err := os.Remove(filepath.Join(binDir, v.Name()))
+					if err != nil {
+						return err
 					}
+					break
 				}
+			}
+			if !removed {
+				return fmt.Errorf("binary for %s not found to remove", expectedBinary)
 			}
 			fmt.Printf("removing %s from metadata\n", *removeRepo)
 			var newMeta []Metadata
