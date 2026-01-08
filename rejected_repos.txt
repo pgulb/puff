@@ -43,3 +43,10 @@ wtfutil/wtf
 benfred/py-spy
 astral-sh/rye
 PyO3/maturin
+plasma-umass/scalene
+gaogaotiantian/viztracer
+mtshiba/pylyzer
+indygreg/PyOxidizer
+rustsec/rustsec
+xd009642/tarpaulin
+casey/just
