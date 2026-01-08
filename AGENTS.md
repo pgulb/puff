@@ -19,7 +19,7 @@ This file contains instructions for AI coding agents working on the puff project
   - `Regexp`: Regex pattern to match the Linux x86_64 binary asset in GitHub releases
 
 ### Repository Selection Criteria
-- Must provide pre-compiled static Linux x86_64 binaries in GitHub releases
+- Must provide pre-compiled static Linux x86_64 binaries in GitHub releases (actual binary executables, not Python wheels or other non-binary formats)
 - Popular and widely-used CLI tools for development/DevOps
 - No complex dependencies or installation requirements
 - Not GUI applications or tools requiring special terminal features

@@ -40,3 +40,4 @@ containers/skopeo
 containers/buildah
 aristocratos/btop
 wtfutil/wtf
+benfred/py-spy
