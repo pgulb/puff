@@ -253,6 +253,16 @@ func AvailableRepos() *[]Repo {
 			Desc:   "Fast and powerful log viewer and processor for JSON/logfmt logs",
 			Regexp: `^hl-linux-x86_64-gnu\.tar\.gz$`,
 		},
+		{
+			Path:   "google/ko",
+			Desc:   "A tool to build and deploy Go applications on Kubernetes, written in Go, simplifying container image creation.",
+			Regexp: `^ko_.*_Linux_x86_64\.tar\.gz$`,
+		},
+		{
+			Path:   "tilt-dev/tilt",
+			Desc:   "A tool for defining and managing local development environments for microservices on Kubernetes, written in Go.",
+			Regexp: `^tilt\..*\.linux\.x86_64\.tar\.gz$`,
+		},
 	}
 }
 
