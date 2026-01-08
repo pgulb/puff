@@ -10,3 +10,7 @@ ajeetdsouza/zoxide
 chmln/sd
 muesli/duf
 pemistahl/grex
+atuinsh/atuin
+github/copilot-cli
+cantino/mcfly
+zyedidia/eget
