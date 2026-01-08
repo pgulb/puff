@@ -27,8 +27,10 @@ This file contains instructions for AI coding agents working on the puff project
 ### Testing New Repositories
 1. Verify GitHub releases contain Linux x86_64 binaries
 2. Test regex pattern matches the correct asset name
-3. Run `puff add <repo>` to install and verify functionality
-4. Update this document with new additions
+3. Build the project using `task build`
+4. Run `puff add <repo>` with the newly built binary to install the repo
+5. Using the absolute path of the installed binary, run it with `--help` to confirm it was downloaded and displays help
+6. DO NOT update this document with new added repo names
 
 ### Rejected Repositories
 See `rejected_repos.txt` for repositories that were considered but rejected for inclusion. This file helps avoid re-evaluating the same repos and documents rejection reasons.
