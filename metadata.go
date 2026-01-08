@@ -143,6 +143,21 @@ func AvailableRepos() *[]Repo {
 			Desc:   "Kubernetes CLI to manage your clusters in style",
 			Regexp: `^k9s_Linux_amd64\.tar\.gz$`,
 		},
+		{
+			Path:   "astral-sh/uv",
+			Desc:   "An extremely fast Python package installer and resolver, written in Rust.",
+			Regexp: `^uv-x86_64-unknown-linux-gnu\.tar\.gz$`,
+		},
+		{
+			Path:   "astral-sh/ruff",
+			Desc:   "An extremely fast Python linter and code formatter, written in Rust.",
+			Regexp: `^ruff-x86_64-unknown-linux-gnu\.tar\.gz$`,
+		},
+		{
+			Path:   "astral-sh/ty",
+			Desc:   "Static type checker for Python",
+			Regexp: `^ty-x86_64-unknown-linux-gnu\.tar\.gz$`,
+		},
 	}
 }
 
