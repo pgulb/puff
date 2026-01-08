@@ -243,6 +243,16 @@ func AvailableRepos() *[]Repo {
 			Desc:   "A cross-platform builder and launcher for Python applications using UV.",
 			Regexp: `^pycrucible-x86_64-unknown-linux-gnu$`,
 		},
+		{
+			Path:   "jorgerojas26/lazysql",
+			Desc:   "Cross-platform TUI database management tool written in Go",
+			Regexp: `^lazysql_Linux_x86_64\.tar\.gz$`,
+		},
+		{
+			Path:   "pamburus/hl",
+			Desc:   "Fast and powerful log viewer and processor for JSON/logfmt logs",
+			Regexp: `^hl-linux-x86_64-gnu\.tar\.gz$`,
+		},
 	}
 }
 
