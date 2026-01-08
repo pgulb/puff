@@ -263,6 +263,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "A tool for defining and managing local development environments for microservices on Kubernetes, written in Go.",
 			Regexp: `^tilt\..*\.linux\.x86_64\.tar\.gz$`,
 		},
+		{
+			Path:   "denisidoro/navi",
+			Desc:   "An interactive cheatsheet tool for the command-line.",
+			Regexp: `^navi-v.*-x86_64-unknown-linux-musl\.tar\.gz$`,
+		},
 	}
 }
 
