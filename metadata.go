@@ -223,6 +223,21 @@ func AvailableRepos() *[]Repo {
 			Desc:   "A TUI for reading logs from journald, auditd, file system, Docker containers, Compose stacks, Podman and Kubernetes pods with support for output coloring and multiple filtering modes.",
 			Regexp: `^lazyjournal-.*-linux-amd64$`,
 		},
+		{
+			Path:   "golangci/golangci-lint",
+			Desc:   "Fast linters Runner for Go, running multiple linters in parallel with caching and YAML config support.",
+			Regexp: `golangci-lint-.*-linux-amd64\.tar\.gz`,
+		},
+		{
+			Path:   "cosmtrek/air",
+			Desc:   "Live reloading for Go applications, automatically rebuilding and restarting on file changes.",
+			Regexp: `air_.*_linux_amd64\.tar\.gz`,
+		},
+		{
+			Path:   "codesenberg/bombardier",
+			Desc:   "Fast cross-platform HTTP benchmarking tool written in Go.",
+			Regexp: `^bombardier-linux-amd64$`,
+		},
 	}
 }
 
