@@ -14,3 +14,8 @@ atuinsh/atuin
 github/copilot-cli
 cantino/mcfly
 zyedidia/eget
+rofl0r/ncdu
+Canop/broot
+XAMPPRocky/tokei
+o2sh/onefetch
+ClementTsang/bottom

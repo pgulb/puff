@@ -183,6 +183,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "The next gen ls command",
 			Regexp: `^lsd-v.*-x86_64-unknown-linux-gnu\.tar\.gz$`,
 		},
+		{
+			Path:   "zellij-org/zellij",
+			Desc:   "A terminal workspace with batteries included",
+			Regexp: `^zellij.*x86_64.*linux.*\.tar\.gz$`,
+		},
 	}
 }
 
