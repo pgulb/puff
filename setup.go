@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // creates puff config directory
@@ -58,17 +59,34 @@ func PromptForGhPat(cfgDir string) error {
 // for .bashrc and .zshrc
 func PromptForAddToPath(cfgDir string) error {
 	var path string
+	binDir := filepath.Join(cfgDir, "bin")
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
 	shells := []string{".bashrc", ".zshrc"}
 	for _, shell := range shells {
+		// check if shell file exists
+		_, err := os.Stat(filepath.Join(home, shell))
+		if err != nil {
+			if errors.Is(err, fs.ErrNotExist) {
+				continue
+			}
+			return err
+		}
+		// check if puff bin dir is already in PATH in this shell
+		data, err := os.ReadFile(filepath.Join(home, shell))
+		if err != nil {
+			return err
+		}
+		if strings.Contains(string(data), binDir) {
+			fmt.Printf("puff bin dir already in PATH in %s\n", shell)
+			continue
+		}
 		fmt.Printf("Add puff directory to PATH in ~/%s? (y/n): ", shell)
 		fmt.Scanln(&path)
 		if path == "y" {
-			home, err := os.UserHomeDir()
-			if err != nil {
-				return err
-			}
 			fmt.Printf("adding puff bin dir to PATH in %s\n", shell)
-			binDir := filepath.Join(cfgDir, "bin")
 			f, err := os.OpenFile(filepath.Join(home, shell), os.O_APPEND|os.O_WRONLY, 0600)
 			if err != nil {
 				return err
@@ -80,7 +98,7 @@ func PromptForAddToPath(cfgDir string) error {
 			}
 		}
 	}
-	err := os.WriteFile(filepath.Join(cfgDir, "path_asked"), []byte(""), 0600)
+	err = os.WriteFile(filepath.Join(cfgDir, "path_asked"), []byte(""), 0600)
 	if err != nil {
 		return err
 	}
