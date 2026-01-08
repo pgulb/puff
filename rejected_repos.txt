@@ -41,3 +41,5 @@ containers/buildah
 aristocratos/btop
 wtfutil/wtf
 benfred/py-spy
+astral-sh/rye
+PyO3/maturin

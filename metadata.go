@@ -238,6 +238,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "Fast cross-platform HTTP benchmarking tool written in Go.",
 			Regexp: `^bombardier-linux-amd64$`,
 		},
+		{
+			Path:   "razorblade23/PyCrucible",
+			Desc:   "A cross-platform builder and launcher for Python applications using UV.",
+			Regexp: `^pycrucible-x86_64-unknown-linux-gnu$`,
+		},
 	}
 }
 
