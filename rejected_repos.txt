@@ -20,3 +20,7 @@ XAMPPRocky/tokei
 o2sh/onefetch
 ClementTsang/bottom
 wojciech-graj/doom-ascii
+cloudflare/cfssl
+hashicorp/terraform
+kubernetes-sigs/kustomize
+helm/helm

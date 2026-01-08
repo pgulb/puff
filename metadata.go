@@ -188,6 +188,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "A terminal workspace with batteries included",
 			Regexp: `^zellij.*x86_64.*linux.*\.tar\.gz$`,
 		},
+		{
+			Path:   "aquasecurity/trivy",
+			Desc:   "Scanner for vulnerabilities in container images, file systems, and Git repositories",
+			Regexp: `^trivy_.*_Linux-64bit\.tar\.gz$`,
+		},
 	}
 }
 
