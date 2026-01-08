@@ -34,7 +34,7 @@ This file contains instructions for AI coding agents working on the puff project
 6. DO NOT update this document with new added repo names
 
 ### Rejected Repositories
-See `rejected_repos.txt` for repositories that were considered but rejected for inclusion. This file contains only repo paths (one per line) to avoid re-evaluating the same repos. Do not add descriptions or reasons to this file.
+See `rejected_repos.txt` for repositories that were considered but rejected for inclusion. This file contains only repo paths (one per line) to avoid re-evaluating the same repos. Always check the entire file before adding new entries to avoid duplicates. Do not add descriptions or reasons to this file.
 
 ## Build/Lint/Test Commands
 
