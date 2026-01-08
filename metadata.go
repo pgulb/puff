@@ -168,6 +168,16 @@ func AvailableRepos() *[]Repo {
 			Desc:   "A syntax-highlighting pager for git, diff, and grep output",
 			Regexp: `^delta-.*-x86_64-unknown-linux-gnu\.tar\.gz$`,
 		},
+		{
+			Path:   "theryangeary/choose",
+			Desc:   "A human-friendly and fast alternative to cut and (sometimes) awk",
+			Regexp: `^choose-x86_64-unknown-linux-gnu$`,
+		},
+		{
+			Path:   "direnv/direnv",
+			Desc:   "Unclutter your .profile with an extensible shell environment manager",
+			Regexp: `^direnv\.linux-amd64$`,
+		},
 	}
 }
 

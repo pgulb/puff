@@ -5,3 +5,8 @@ sharkdp/hyperfine
 goreleaser/goreleaser
 rclone/rclone
 BurntSushi/ripgrep
+cli/cli
+ajeetdsouza/zoxide
+chmln/sd
+muesli/duf
+pemistahl/grex
