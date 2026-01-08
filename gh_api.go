@@ -88,6 +88,7 @@ func GetLatestRelease(repo *Repo, ghPat string) (*Release, error) {
 // saves binary directly to bin or unpacks it if it's .tar.gz
 func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName string) error {
 	savePath := filepath.Join(cfgDir, "bin", binName)
+	tempPath := savePath + ".tmp"
 	matched, err := regexp.MatchString(`\.tar\.gz$`, assetName)
 	if err != nil {
 		return err
@@ -132,20 +133,42 @@ func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName str
 				if err != nil {
 					return err
 				}
-				fmt.Printf("writing %s to %s\n", binName, savePath)
-				err = os.WriteFile(savePath, binBytes, 0750)
+				writePath := savePath
+				if binName == "puff" {
+					writePath = tempPath
+				}
+				fmt.Printf("writing %s to %s\n", binName, writePath)
+				err = os.WriteFile(writePath, binBytes, 0750)
 				if err != nil {
 					return err
+				}
+				if binName == "puff" {
+					err = os.Rename(tempPath, savePath)
+					if err != nil {
+						return err
+					}
+					fmt.Printf("replaced %s with new version\n", savePath)
 				}
 				return nil
 			}
 		}
 	} else {
 		// save directly
-		fmt.Printf("writing %s to %s\n", binName, savePath)
-		err := os.WriteFile(savePath, bodyBytes, 0750)
+		writePath := savePath
+		if binName == "puff" {
+			writePath = tempPath
+		}
+		fmt.Printf("writing %s to %s\n", binName, writePath)
+		err := os.WriteFile(writePath, bodyBytes, 0750)
 		if err != nil {
 			return err
+		}
+		if binName == "puff" {
+			err = os.Rename(tempPath, savePath)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("replaced %s with new version\n", savePath)
 		}
 	}
 	return nil
