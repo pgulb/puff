@@ -26,3 +26,11 @@ kubernetes-sigs/kustomize
 helm/helm
 Byron/dua-cli
 printfn/fend
+sharkdp/hexyl
+orf/gping
+sharkdp/pastel
+watchexec/watchexec
+imsnif/bandwhich
+containers/podman
+containerd/nerdctl
+runfinch/finch
