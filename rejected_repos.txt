@@ -4,3 +4,4 @@ Wilfred/difftastic
 sharkdp/hyperfine
 goreleaser/goreleaser
 rclone/rclone
+BurntSushi/ripgrep

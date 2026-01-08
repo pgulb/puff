@@ -158,6 +158,16 @@ func AvailableRepos() *[]Repo {
 			Desc:   "Static type checker for Python",
 			Regexp: `^ty-x86_64-unknown-linux-gnu\.tar\.gz$`,
 		},
+		{
+			Path:   "junegunn/fzf",
+			Desc:   "A command-line fuzzy finder",
+			Regexp: `^fzf-.*-linux_amd64\.tar\.gz$`,
+		},
+		{
+			Path:   "dandavison/delta",
+			Desc:   "A syntax-highlighting pager for git, diff, and grep output",
+			Regexp: `^delta-.*-x86_64-unknown-linux-gnu\.tar\.gz$`,
+		},
 	}
 }
 
