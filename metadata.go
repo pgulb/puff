@@ -133,6 +133,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "Upgrade all tools on the system",
 			Regexp: `^topgrade-v\d+\.\d+\.\d+-x86_64-unknown-linux-musl\.tar\.gz$`,
 		},
+		{
+			Path:   "fullstorydev/grpcurl",
+			Desc:   "A command-line tool for interacting with gRPC servers",
+			Regexp: `^grpcurl_.*_linux_x86_64\.tar\.gz$`,
+		},
 	}
 }
 
