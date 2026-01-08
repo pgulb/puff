@@ -138,6 +138,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "A command-line tool for interacting with gRPC servers",
 			Regexp: `^grpcurl_.*_linux_x86_64\.tar\.gz$`,
 		},
+		{
+			Path:   "derailed/k9s",
+			Desc:   "Kubernetes CLI to manage your clusters in style",
+			Regexp: `^k9s_Linux_amd64\.tar\.gz$`,
+		},
 	}
 }
 
