@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -190,10 +191,40 @@ func DownloadBinary(cfgDir string, repo *Repo, release *Release, ghPat string) e
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
-		bodyBytes, err := io.ReadAll(resp.Body)
+		//bodyBytes, err := io.ReadAll(resp.Body)
+		//if err != nil {
+		//	return err
+		//}
+		rawSize := resp.Header.Get("Content-Length")
+		size, err := strconv.ParseInt(rawSize, 10, 64)
 		if err != nil {
 			return err
 		}
+		bodyBytes := make([]byte, size)
+		var read int
+		for {
+			var buf []byte
+			var n int
+			percent := float64(read) / float64(size) * 100
+			fmt.Printf("\r%.2f%%", percent)
+			remaining := int(size) - read
+			if remaining < 512 {
+				n, err = io.ReadAtLeast(resp.Body, buf, remaining)
+				if err != nil {
+					return err
+				}
+				copy(bodyBytes[read:], buf)
+				break
+			} else {
+				n, err = io.ReadAtLeast(resp.Body, bodyBytes, 512)
+				if err != nil {
+					return err
+				}
+				copy(bodyBytes[read:], buf)
+				read += n
+			}
+		}
+		fmt.Printf("\n")
 		binName, err := BinNameFromPath(repo)
 		if err != nil {
 			return err
