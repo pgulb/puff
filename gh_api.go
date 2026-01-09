@@ -203,24 +203,25 @@ func DownloadBinary(cfgDir string, repo *Repo, release *Release, ghPat string) e
 		bodyBytes := make([]byte, size)
 		var read int
 		for {
-			var buf []byte
 			var n int
 			percent := float64(read) / float64(size) * 100
 			fmt.Printf("\r%.2f%%", percent)
 			remaining := int(size) - read
-			if remaining < 512 {
+			if remaining < 2048 {
+				buf := make([]byte, remaining)
 				n, err = io.ReadAtLeast(resp.Body, buf, remaining)
 				if err != nil {
 					return err
 				}
-				copy(bodyBytes[read:], buf)
+				bodyBytes = append(bodyBytes, buf...)
 				break
 			} else {
-				n, err = io.ReadAtLeast(resp.Body, bodyBytes, 512)
+				buf := make([]byte, 2048)
+				n, err = io.ReadAtLeast(resp.Body, bodyBytes, 2048)
 				if err != nil {
 					return err
 				}
-				copy(bodyBytes[read:], buf)
+				bodyBytes = append(bodyBytes, buf...)
 				read += n
 			}
 		}
