@@ -50,3 +50,4 @@ indygreg/PyOxidizer
 rustsec/rustsec
 xd009642/tarpaulin
 casey/just
+tmux/tmux-builds

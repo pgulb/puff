@@ -268,6 +268,11 @@ func AvailableRepos() *[]Repo {
 			Desc:   "An interactive cheatsheet tool for the command-line.",
 			Regexp: `^navi-v.*-x86_64-unknown-linux-musl\.tar\.gz$`,
 		},
+		{
+			Path:   "homeport/dyff",
+			Desc:   "Diff tool for YAML files and JSON.",
+			Regexp: `^dyff_.*_linux_amd64\.tar\.gz$`,
+		},
 	}
 }
 
