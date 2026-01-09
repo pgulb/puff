@@ -152,6 +152,7 @@ func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName str
 				return nil
 			}
 		}
+		return errors.New("binary not found in tar.gz archive")
 	} else {
 		// save directly
 		writePath := savePath
