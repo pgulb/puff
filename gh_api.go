@@ -191,39 +191,29 @@ func DownloadBinary(cfgDir string, repo *Repo, release *Release, ghPat string) e
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
-		//bodyBytes, err := io.ReadAll(resp.Body)
-		//if err != nil {
-		//	return err
-		//}
 		rawSize := resp.Header.Get("Content-Length")
 		size, err := strconv.ParseInt(rawSize, 10, 64)
 		if err != nil {
 			return err
 		}
 		bodyBytes := make([]byte, size)
-		var read int
-		for {
-			var n int
-			percent := float64(read) / float64(size) * 100
+		offset := 0
+		buf := make([]byte, 2048)
+		for offset < int(size) {
+			percent := float64(offset) / float64(size) * 100
 			fmt.Printf("\r%.2f%%", percent)
-			remaining := int(size) - read
-			if remaining < 2048 {
-				buf := make([]byte, remaining)
-				n, err = io.ReadAtLeast(resp.Body, buf, remaining)
-				if err != nil {
-					return err
-				}
-				bodyBytes = append(bodyBytes, buf...)
-				break
-			} else {
-				buf := make([]byte, 2048)
-				n, err = io.ReadAtLeast(resp.Body, bodyBytes, 2048)
-				if err != nil {
-					return err
-				}
-				bodyBytes = append(bodyBytes, buf...)
-				read += n
+			n, err := resp.Body.Read(buf)
+			if err != nil && err != io.EOF {
+				return err
 			}
+			if n == 0 {
+				break
+			}
+			copy(bodyBytes[offset:], buf[:n])
+			offset += n
+		}
+		if offset != int(size) {
+			return fmt.Errorf("expected %d bytes, got %d", size, offset)
 		}
 		fmt.Printf("\n")
 		binName, err := BinNameFromPath(repo)
