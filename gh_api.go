@@ -198,7 +198,7 @@ func DownloadBinary(cfgDir string, repo *Repo, release *Release, ghPat string) e
 		}
 		bodyBytes := make([]byte, size)
 		offset := 0
-		buf := make([]byte, 2048)
+		buf := make([]byte, 65536)
 		for offset < int(size) {
 			percent := float64(offset) / float64(size) * 100
 			fmt.Printf("\r%.2f%%", percent)
