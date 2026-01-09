@@ -23,11 +23,11 @@ func addFeatured(cfgDir string, repo Repo, ghPat string) error {
 		return err
 	}
 	if added {
-		err = SaveMetadata(metadata, cfgDir)
+		err := DownloadBinary(cfgDir, &repo, release, ghPat)
 		if err != nil {
 			return err
 		}
-		err := DownloadBinary(cfgDir, &repo, release, ghPat)
+		err = SaveMetadata(metadata, cfgDir)
 		if err != nil {
 			return err
 		}
@@ -97,11 +97,11 @@ func addCustom(cfgDir string, installRepo *string, ghPat string) error {
 						nameParts,
 					)
 					if added {
-						err = SaveMetadata(metadata, cfgDir)
+						err := DownloadBinary(cfgDir, &repo, release, ghPat)
 						if err != nil {
 							return err
 						}
-						err := DownloadBinary(cfgDir, &repo, release, ghPat)
+						err = SaveMetadata(metadata, cfgDir)
 						if err != nil {
 							return err
 						}
