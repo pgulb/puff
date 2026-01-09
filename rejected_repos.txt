@@ -51,3 +51,13 @@ rustsec/rustsec
 xd009642/tarpaulin
 casey/just
 tmux/tmux-builds
+mozilla/sops
+smallstep/cli
+zyedidia/micro
+burntsushi/xsv
+yamafaktory/jql
+johnkerl/miller
+dalance/procs
+ogham/dog
+restic/restic
+helix-editor/helix

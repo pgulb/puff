@@ -273,6 +273,21 @@ func AvailableRepos() *[]Repo {
 			Desc:   "Diff tool for YAML files and JSON.",
 			Regexp: `^dyff_.*_linux_amd64\.tar\.gz$`,
 		},
+		{
+			Path:   "darksworm/argonaut",
+			Desc:   "Keyboard-first terminal UI for Argo CD. Browse apps, scope by clusters/namespaces/projects, stream live resource status, trigger syncs, inspect diffs, and roll back safely — all without leaving your terminal.",
+			Regexp: `^argonaut-.*-linux-amd64\.tar\.gz$`,
+		},
+		{
+			Path:   "anomalyco/opencode",
+			Desc:   "The open source coding agent.",
+			Regexp: `^opencode-linux-x64\.tar\.gz$`,
+		},
+		{
+			Path:   "nathanieltooley/gokemon",
+			Desc:   "A terminal-based Pokemon battle Simulator!",
+			Regexp: `^gokemon_Linux_x86_64\.tar\.gz$`,
+		},
 	}
 }
 
