@@ -35,7 +35,7 @@ type GithubResponse struct {
 // returns authenticated *http.Client and *http.Request
 func AuthedClient(url string, ghPat string) (*http.Client, *http.Request, error) {
 	c := http.DefaultClient
-	c.Timeout = 15 * time.Second
+	c.Timeout = 600 * time.Second
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, nil, err
