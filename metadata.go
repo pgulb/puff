@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-var Version = "v0.8.0"
+var Version = "v0.8.1"
 
 // Repo holds info about repo that a binary can be installed from
 type Repo struct {
