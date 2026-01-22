@@ -134,6 +134,10 @@ func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName str
 				if err != nil {
 					return err
 				}
+				if string(binBytes[:3]) == "#!/" {
+					// binary is a script/autocomplete definition
+					continue
+				}
 				writePath := savePath
 				if binName == "puff" {
 					writePath = tempPath
