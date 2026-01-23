@@ -45,8 +45,13 @@ func GetGhPat(cfgDir string) (string, error) {
 // asks for Github PAT and writes it to file
 func PromptForGhPat(cfgDir string) error {
 	var ghPat string
+	fmt.Println("Press enter if you don't want to use GH PAT")
+	fmt.Println("GH heavily rate limits unauthenticated requests")
 	fmt.Print("Enter your github personal access token: ")
 	fmt.Scanln(&ghPat)
+	if ghPat == "" {
+		ghPat = "-"
+	}
 	err := os.WriteFile(filepath.Join(cfgDir, "gh_pat"), []byte(ghPat), 0600)
 	if err != nil {
 		return err

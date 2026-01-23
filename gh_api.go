@@ -41,7 +41,9 @@ func AuthedClient(url string, ghPat string) (*http.Client, *http.Request, error)
 	if err != nil {
 		return nil, nil, err
 	}
-	req.Header.Set("Authorization", "Bearer "+ghPat)
+	if ghPat != "-" {
+		req.Header.Set("Authorization", "Bearer "+ghPat)
+	}
 	return c, req, nil
 }
 
@@ -82,7 +84,7 @@ func GetLatestRelease(repo *Repo, ghPat string) (*Release, error) {
 		}
 		return nil, errors.New("No regexp matching name found in release assets")
 	} else {
-		return nil, err
+		return nil, fmt.Errorf("GH API returned status code %v", resp.StatusCode)
 	}
 }
 

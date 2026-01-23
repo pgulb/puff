@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -27,12 +28,12 @@ func main() {
 	// else read it
 	ghPat, err := puff.GetGhPat(cfgDir)
 	if err != nil {
-		fmt.Printf("error getting gh_pat: %s", err.Error())
+		log.Fatalf("error getting gh_pat: %s", err.Error())
 	}
 	if ghPat == "" {
 		err := puff.PromptForGhPat(cfgDir)
 		if err != nil {
-			fmt.Printf("error writing gh_pat to file: %s", err.Error())
+			log.Fatalf("error writing gh_pat to file: %s", err.Error())
 		}
 	}
 
@@ -40,23 +41,23 @@ func main() {
 	// for ~/.bashrc and ~/.zshrc
 	err = puff.MustCreateBinDir(cfgDir)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Fatal(err.Error())
 	}
 	prompted, err := puff.WasPromptedForPath(cfgDir)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Fatal(err.Error())
 	}
 	if !prompted {
 		err = puff.PromptForAddToPath(cfgDir)
 		if err != nil {
-			fmt.Println(err.Error())
+			log.Fatal(err.Error())
 		}
 	}
 
 	// write metadata.json skeleton file if not exists
 	err = puff.MaybeCreateMetadata(cfgDir)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	// commands
@@ -67,11 +68,10 @@ func main() {
 	case "list":
 		metadata, err := puff.GetMetadata(cfgDir)
 		if err != nil {
-			fmt.Println(err.Error())
+			log.Fatal(err.Error())
 		}
 		if len(metadata.Metadata) == 0 {
-			fmt.Println("No installed binaries found.")
-			return
+			log.Fatal("No installed binaries found.")
 		} else {
 			for _, v := range metadata.Metadata {
 				fmt.Printf("- %s (version: %s)\n", v.Path, v.Version)
@@ -101,18 +101,18 @@ func main() {
 		for _, installRepo := range reposToAdd {
 			err := puff.Add(cfgDir, &installRepo, ghPat)
 			if err != nil {
-				fmt.Println(err.Error())
+				log.Fatal(err.Error())
 			}
 		}
 	case "upd":
 		fmt.Println("Updating all installed binaries")
 		metadata, err := puff.GetMetadata(cfgDir)
 		if err != nil {
-			fmt.Println(err.Error())
+			log.Fatal(err.Error())
 		}
 		err = puff.Update(cfgDir, ghPat, metadata)
 		if err != nil {
-			fmt.Println(err.Error())
+			log.Fatal(err.Error())
 		}
 	case "rm":
 		if len(os.Args) < 3 {
@@ -122,7 +122,7 @@ func main() {
 		for _, removeRepo := range reposToRemove {
 			err := puff.Remove(cfgDir, &removeRepo)
 			if err != nil {
-				fmt.Println(err.Error())
+				log.Fatal(err.Error())
 			}
 		}
 	case "version", "--version", "-v":
