@@ -109,6 +109,62 @@ func saveBin(savePath string, tempPath string, binName string, fileBytes []byte)
 	return nil
 }
 
+// handle extracting binary from .tar.gz file and saving it to bin
+func saveFromTgz(
+	savePath string,
+	tempPath string,
+	binName string,
+	assetName string,
+	fileBytes []byte,
+) error {
+	fmt.Printf("unpacking %s\n", assetName)
+	bodyReader := bytes.NewReader(fileBytes)
+	zr, err := gzip.NewReader(bodyReader)
+	if err != nil {
+		return err
+	}
+	defer zr.Close()
+	degzippedBytes, err := io.ReadAll(zr)
+	if err != nil {
+		return err
+	}
+	degzippedBody := bytes.NewReader(degzippedBytes)
+	tr := tar.NewReader(degzippedBody)
+	for {
+		hdr, err := tr.Next()
+		if err == io.EOF {
+			break // End of archive
+		}
+		if err != nil {
+			return err
+		}
+		var nameToCompare string
+		// handle possible paths in tarball
+		if strings.Contains(hdr.Name, "/") {
+			nameToCompare = strings.Split(hdr.Name, "/")[len(strings.Split(hdr.Name, "/"))-1]
+		} else {
+			nameToCompare = hdr.Name
+		}
+		// save binary
+		if nameToCompare == binName {
+			binBytes, err := io.ReadAll(tr)
+			if err != nil {
+				return err
+			}
+			if string(binBytes[:3]) == "#!/" {
+				// binary is a script/autocomplete definition
+				continue
+			}
+			err = saveBin(savePath, tempPath, binName, binBytes)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+	}
+	return errors.New("binary not found in tar.gz archive")
+}
+
 // saves binary directly to bin or unpacks it if it's .tar.gz
 func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName string) error {
 	savePath := filepath.Join(cfgDir, "bin", binName)
@@ -122,53 +178,10 @@ func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName str
 		return err
 	}
 	if matched || matchedTgz {
-		// unpack .tar.gz
-		fmt.Printf("unpacking %s\n", assetName)
-		bodyReader := bytes.NewReader(bodyBytes)
-		zr, err := gzip.NewReader(bodyReader)
+		err = saveFromTgz(savePath, tempPath, binName, assetName, bodyBytes)
 		if err != nil {
 			return err
 		}
-		defer zr.Close()
-		degzippedBytes, err := io.ReadAll(zr)
-		if err != nil {
-			return err
-		}
-		degzippedBody := bytes.NewReader(degzippedBytes)
-		tr := tar.NewReader(degzippedBody)
-		for {
-			hdr, err := tr.Next()
-			if err == io.EOF {
-				break // End of archive
-			}
-			if err != nil {
-				return err
-			}
-			var nameToCompare string
-			// handle possible paths in tarball
-			if strings.Contains(hdr.Name, "/") {
-				nameToCompare = strings.Split(hdr.Name, "/")[len(strings.Split(hdr.Name, "/"))-1]
-			} else {
-				nameToCompare = hdr.Name
-			}
-			// save binary
-			if nameToCompare == binName {
-				binBytes, err := io.ReadAll(tr)
-				if err != nil {
-					return err
-				}
-				if string(binBytes[:3]) == "#!/" {
-					// binary is a script/autocomplete definition
-					continue
-				}
-				err = saveBin(savePath, tempPath, binName, binBytes)
-				if err != nil {
-					return err
-				}
-				return nil
-			}
-		}
-		return errors.New("binary not found in tar.gz archive")
 	} else {
 		// save directly
 		err = saveBin(savePath, tempPath, binName, bodyBytes)
