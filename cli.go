@@ -50,7 +50,7 @@ func addToPath(cfgDir string) {
 	}
 }
 
-// setup directiry structure, gh token etc
+// setup directory structure, gh token etc
 func setup() (string, string) {
 	cfgDir := MustCreateCfgDir()
 	ghPat := setupGhPat(cfgDir)
