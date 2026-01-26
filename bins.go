@@ -8,13 +8,8 @@ import (
 	"strings"
 )
 
-// handling add command for featured repos
-func addFeatured(cfgDir string, repo Repo, ghPat string) error {
-	release, err := GetLatestRelease(&repo, ghPat)
-	if err != nil {
-		return err
-	}
-	fmt.Printf("latest version: %s\n", release.Version)
+// download binary and save metadata entry
+func saveRelease(cfgDir string, repo Repo, release *Release, ghPat string) error {
 	metadata, err := GetMetadata(cfgDir)
 	if err != nil {
 		return err
@@ -37,6 +32,20 @@ func addFeatured(cfgDir string, repo Repo, ghPat string) error {
 		)
 	} else {
 		fmt.Printf("%s at version %s already installed\n", repo.Path, release.Version)
+	}
+	return nil
+}
+
+// handling add command for featured repos
+func addFeatured(cfgDir string, repo Repo, ghPat string) error {
+	release, err := GetLatestRelease(&repo, ghPat)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("latest version: %s\n", release.Version)
+	err = saveRelease(cfgDir, repo, release, ghPat)
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -94,28 +103,10 @@ func addCustom(cfgDir string, installRepo *string, ghPat string) error {
 			}
 		}
 		if containsAll {
-			metadata, err := GetMetadata(cfgDir)
+			release := &Release{Version: ghResp.Version, Link: asset.URL}
+			err = saveRelease(cfgDir, repo, release, ghPat)
 			if err != nil {
 				return err
-			}
-			release := &Release{Version: ghResp.Version, Link: asset.URL}
-			added, err := AddMetaIfNotExists(metadata, &repo, release, nameParts)
-			if added {
-				err := DownloadBinary(cfgDir, &repo, release, ghPat)
-				if err != nil {
-					return err
-				}
-				err = SaveMetadata(metadata, cfgDir)
-				if err != nil {
-					return err
-				}
-				fmt.Printf(
-					"%s at version %s successfully installed!\n",
-					repo.Path,
-					release.Version,
-				)
-			} else {
-				fmt.Printf("%s at version %s already installed\n", repo.Path, release.Version)
 			}
 			break
 		}
