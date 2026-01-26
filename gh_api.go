@@ -109,6 +109,22 @@ func saveBin(savePath string, tempPath string, binName string, fileBytes []byte)
 	return nil
 }
 
+// decompresses .tar.gz file and returns tar bytes
+func degzip(assetName string, fileBytes []byte) ([]byte, error) {
+	fmt.Printf("unpacking %s\n", assetName)
+	bodyReader := bytes.NewReader(fileBytes)
+	zr, err := gzip.NewReader(bodyReader)
+	if err != nil {
+		return nil, err
+	}
+	defer zr.Close()
+	degzippedBytes, err := io.ReadAll(zr)
+	if err != nil {
+		return nil, err
+	}
+	return degzippedBytes, nil
+}
+
 // handle extracting binary from .tar.gz file and saving it to bin
 func saveFromTgz(
 	savePath string,
@@ -117,14 +133,7 @@ func saveFromTgz(
 	assetName string,
 	fileBytes []byte,
 ) error {
-	fmt.Printf("unpacking %s\n", assetName)
-	bodyReader := bytes.NewReader(fileBytes)
-	zr, err := gzip.NewReader(bodyReader)
-	if err != nil {
-		return err
-	}
-	defer zr.Close()
-	degzippedBytes, err := io.ReadAll(zr)
+	degzippedBytes, err := degzip(assetName, fileBytes)
 	if err != nil {
 		return err
 	}
