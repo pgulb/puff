@@ -26,3 +26,7 @@ tasks:
     desc: Read metadata.json
     cmds:
       - cat ~/.config/puff/metadata.json
+  list-bins:
+    desc: list bin dir
+    cmds:
+      - ls -ltrh ~/.config/puff/bin
