@@ -19,11 +19,9 @@ func printHelp() {
 	os.Exit(1)
 }
 
-func Run() {
-	cfgDir := MustCreateCfgDir()
-
-	// handle writing github PAT into file if it doesn't exist
-	// else read it
+// handle writing github PAT into file if it doesn't exist
+// else read it
+func setupGhPat(cfgDir string) string {
 	ghPat, err := GetGhPat(cfgDir)
 	if err != nil {
 		log.Fatalf("error getting gh_pat: %s", err.Error())
@@ -34,13 +32,12 @@ func Run() {
 			log.Fatalf("error writing gh_pat to file: %s", err.Error())
 		}
 	}
+	return ghPat
+}
 
-	// add puff bin directory to PATH if user wants
-	// for ~/.bashrc and ~/.zshrc
-	err = MustCreateBinDir(cfgDir)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+// add puff bin directory to PATH if user wants
+// for ~/.bashrc and ~/.zshrc
+func addToPath(cfgDir string) {
 	prompted, err := WasPromptedForPath(cfgDir)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -51,12 +48,28 @@ func Run() {
 			log.Fatal(err.Error())
 		}
 	}
+}
 
-	// write metadata.json skeleton file if not exists
+// setup directiry structure, gh token etc
+func setup() (string, string) {
+	cfgDir := MustCreateCfgDir()
+	ghPat := setupGhPat(cfgDir)
+
+	err := MustCreateBinDir(cfgDir)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	addToPath(cfgDir)
+
 	err = MaybeCreateMetadata(cfgDir)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	return cfgDir, ghPat
+}
+
+func Run() {
+	cfgDir, ghPat := setup()
 
 	// commands
 	if len(os.Args) < 2 {
