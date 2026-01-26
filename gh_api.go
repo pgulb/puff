@@ -182,6 +182,35 @@ func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName str
 	return nil
 }
 
+// downloads a binary and outputs percent progress to terminal
+func streamedDownload(resp *http.Response) ([]byte, error) {
+	rawSize := resp.Header.Get("Content-Length")
+	size, err := strconv.ParseInt(rawSize, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	bodyBytes := make([]byte, size)
+	offset := 0
+	buf := make([]byte, 65536)
+	for offset < int(size) {
+		percent := float64(offset) / float64(size) * 100
+		fmt.Printf("\r%.2f%%", percent)
+		n, err := resp.Body.Read(buf)
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
+		if n == 0 {
+			break
+		}
+		copy(bodyBytes[offset:], buf[:n])
+		offset += n
+	}
+	if offset != int(size) {
+		return nil, fmt.Errorf("expected %d bytes, got %d", size, offset)
+	}
+	return bodyBytes, nil
+}
+
 // downloads a binary and puts into bin directory
 func DownloadBinary(cfgDir string, repo *Repo, release *Release, ghPat string) error {
 	fmt.Printf("downloading %s\n", release.Link)
@@ -189,37 +218,15 @@ func DownloadBinary(cfgDir string, repo *Repo, release *Release, ghPat string) e
 	if err != nil {
 		return err
 	}
-
 	resp, err := c.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
-
 	if resp.StatusCode == http.StatusOK {
-		rawSize := resp.Header.Get("Content-Length")
-		size, err := strconv.ParseInt(rawSize, 10, 64)
+		bodyBytes, err := streamedDownload(resp)
 		if err != nil {
 			return err
-		}
-		bodyBytes := make([]byte, size)
-		offset := 0
-		buf := make([]byte, 65536)
-		for offset < int(size) {
-			percent := float64(offset) / float64(size) * 100
-			fmt.Printf("\r%.2f%%", percent)
-			n, err := resp.Body.Read(buf)
-			if err != nil && err != io.EOF {
-				return err
-			}
-			if n == 0 {
-				break
-			}
-			copy(bodyBytes[offset:], buf[:n])
-			offset += n
-		}
-		if offset != int(size) {
-			return fmt.Errorf("expected %d bytes, got %d", size, offset)
 		}
 		fmt.Printf("\n")
 		binName, err := BinNameFromPath(repo)
@@ -238,7 +245,6 @@ func DownloadBinary(cfgDir string, repo *Repo, release *Release, ghPat string) e
 	} else {
 		return fmt.Errorf("API returned status %v", resp.StatusCode)
 	}
-
 	return nil
 }
 
