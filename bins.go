@@ -1,10 +1,15 @@
 package puff
 
 import (
+	"archive/tar"
+	"bytes"
+	"compress/gzip"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -205,6 +210,119 @@ func Remove(cfgDir string, removeRepo *string) error {
 			if err != nil {
 				return err
 			}
+		}
+	}
+	return nil
+}
+
+// saves binary to bin
+func saveBin(savePath string, tempPath string, binName string, fileBytes []byte) error {
+	writePath := savePath
+	if binName == "puff" {
+		writePath = tempPath
+	}
+	fmt.Printf("writing %s to %s\n", binName, writePath)
+	err := os.WriteFile(writePath, fileBytes, 0750)
+	if err != nil {
+		return err
+	}
+	if binName == "puff" {
+		err = os.Rename(tempPath, savePath)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("replaced %s with new version\n", savePath)
+	}
+	return nil
+}
+
+// decompresses .tar.gz file and returns tar bytes
+func degzip(assetName string, fileBytes []byte) ([]byte, error) {
+	fmt.Printf("unpacking %s\n", assetName)
+	bodyReader := bytes.NewReader(fileBytes)
+	zr, err := gzip.NewReader(bodyReader)
+	if err != nil {
+		return nil, err
+	}
+	defer zr.Close()
+	degzippedBytes, err := io.ReadAll(zr)
+	if err != nil {
+		return nil, err
+	}
+	return degzippedBytes, nil
+}
+
+// handle extracting binary from .tar.gz file and saving it to bin
+func saveFromTgz(
+	savePath string,
+	tempPath string,
+	binName string,
+	assetName string,
+	fileBytes []byte,
+) error {
+	degzippedBytes, err := degzip(assetName, fileBytes)
+	if err != nil {
+		return err
+	}
+	degzippedBody := bytes.NewReader(degzippedBytes)
+	tr := tar.NewReader(degzippedBody)
+	for {
+		hdr, err := tr.Next()
+		if err == io.EOF {
+			break // End of archive
+		}
+		if err != nil {
+			return err
+		}
+		var nameToCompare string
+		// handle possible paths in tarball
+		if strings.Contains(hdr.Name, "/") {
+			nameToCompare = strings.Split(hdr.Name, "/")[len(strings.Split(hdr.Name, "/"))-1]
+		} else {
+			nameToCompare = hdr.Name
+		}
+		// save binary
+		if nameToCompare == binName {
+			binBytes, err := io.ReadAll(tr)
+			if err != nil {
+				return err
+			}
+			if string(binBytes[:3]) == "#!/" {
+				// binary is a script/autocomplete definition
+				continue
+			}
+			err = saveBin(savePath, tempPath, binName, binBytes)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+	}
+	return errors.New("binary not found in tar.gz archive")
+}
+
+// saves binary directly to bin or unpacks it if it's .tar.gz
+func saveOrUnpack(cfgDir string, bodyBytes []byte, binName string, assetName string) error {
+	savePath := filepath.Join(cfgDir, "bin", binName)
+	tempPath := savePath + ".tmp"
+	matched, err := regexp.MatchString(`\.tar\.gz$`, assetName)
+	if err != nil {
+		return err
+	}
+	matchedTgz, err := regexp.MatchString(`\.tgz$`, assetName)
+	if err != nil {
+		return err
+	}
+	if matched || matchedTgz {
+		err = saveFromTgz(savePath, tempPath, binName, assetName, bodyBytes)
+		if err != nil {
+			return err
+		}
+	} else {
+		// save directly
+		err = saveBin(savePath, tempPath, binName, bodyBytes)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
