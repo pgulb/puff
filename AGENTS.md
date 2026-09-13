@@ -9,10 +9,19 @@ All commands use the `go1.25.3` toolchain explicitly (not plain `go`).
 ```bash
 task build      # builds binary: go1.25.3 build -o puff cmd/main.go
 task run        # runs from source: go1.25.3 run cmd/main.go
+task test       # runs go1.25.3 test ./...
 go1.25.3 vet ./...   # vet for suspicious code
 ```
 
-There are **no tests** in this repo (no `*_test.go` files). There is no linter or formatter configured.
+There is no linter or formatter configured.
+
+## Tests
+
+```bash
+task test   # runs go1.25.3 test ./...
+```
+
+Tests live alongside the code they cover (e.g. `metadata_test.go`, `gh_api_test.go`, `bins_test.go`). HTTP-driven code is tested by overriding the package-level `httpClient` and `ghAPIBase` vars to point at an `httptest` server — set them at the start of each HTTP test and call `resetHTTPVars(t)` at the end (see `test_helpers_test.go`).
 
 ## Architecture
 

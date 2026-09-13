@@ -13,6 +13,14 @@ import (
 	"time"
 )
 
+// httpClient is the HTTP client used for GitHub API and asset downloads.
+// Tests override it to point at an httptest server.
+var httpClient = &http.Client{Timeout: 600 * time.Second}
+
+// ghAPIBase is the base URL for the GitHub API. Tests override it to point at
+// an httptest server.
+var ghAPIBase = "https://api.github.com"
+
 // Release holds latest version and download link for a Repo
 type Release struct {
 	Version string
@@ -30,8 +38,7 @@ type GithubResponse struct {
 
 // returns authenticated *http.Client and *http.Request
 func AuthedClient(url string, ghPat string) (*http.Client, *http.Request, error) {
-	c := http.DefaultClient
-	c.Timeout = 600 * time.Second
+	c := httpClient
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, nil, err
@@ -44,7 +51,7 @@ func AuthedClient(url string, ghPat string) (*http.Client, *http.Request, error)
 
 // finds latest version and download link for a Repo
 func GetLatestRelease(repo *Repo, ghPat string) (*Release, error) {
-	RepoUrl, err := url.JoinPath("https://api.github.com", "repos", repo.Path, "releases/latest")
+	RepoUrl, err := url.JoinPath(ghAPIBase, "repos", repo.Path, "releases/latest")
 	c, req, err := AuthedClient(RepoUrl, ghPat)
 	if err != nil {
 		return nil, err
@@ -151,7 +158,7 @@ func DownloadBinary(cfgDir string, repo *Repo, release *Release, ghPat string) e
 
 // returns all assets from API for custom repo
 func GetLatestReleaseAssets(path string, ghPat string) (*GithubResponse, error) {
-	RepoUrl, err := url.JoinPath("https://api.github.com", "repos", path, "releases/latest")
+	RepoUrl, err := url.JoinPath(ghAPIBase, "repos", path, "releases/latest")
 	c, req, err := AuthedClient(RepoUrl, ghPat)
 	if err != nil {
 		return nil, err

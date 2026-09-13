@@ -13,6 +13,10 @@ tasks:
     desc: Run puff from source
     cmds:
       - go1.25.3 run cmd/main.go
+  test:
+    desc: Run tests
+    cmds:
+      - go1.25.3 test ./...
   destroy:
     desc: Remove puff directory
     cmds:
