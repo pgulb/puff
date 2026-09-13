@@ -63,7 +63,7 @@ State is written safely:
 
 ## Versioning
 
-`Version` is a string constant in `metadata.go` (currently `"v0.10.0"`). The `upd` command checks `pgulb/puff` for a newer release and self-updates.
+`Version` is a string constant in `metadata.go` (currently `"v0.11.0"`). The `upd` command checks `pgulb/puff` for a newer release and self-updates.
 
 ## CI
 
