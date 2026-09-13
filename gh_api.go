@@ -91,7 +91,7 @@ func GetLatestRelease(repo *Repo, ghPat string) (*Release, error) {
 	}
 }
 
-// downloads a binary and outputs a progress bar to terminal
+// downloads a binary and outputs a progress bar to stderr
 func streamedDownload(resp *http.Response) ([]byte, error) {
 	rawSize := resp.Header.Get("Content-Length")
 	size, err := strconv.ParseInt(rawSize, 10, 64)
@@ -106,7 +106,7 @@ func streamedDownload(resp *http.Response) ([]byte, error) {
 		percent := float64(offset) / float64(size) * 100
 		filled := int(float64(barWidth) * (float64(offset) / float64(size)))
 		bar := strings.Repeat("█", filled) + strings.Repeat("░", barWidth-filled)
-		fmt.Fprintf(os.Stdout, "\r%s %s %5.1f%%", Cyan(os.Stdout, bar), Dim(os.Stdout, resp.Request.URL.Path), percent)
+		fmt.Fprintf(os.Stderr, "\r%s %s %5.1f%%", Cyan(os.Stderr, bar), Dim(os.Stderr, resp.Request.URL.Path), percent)
 		n, err := resp.Body.Read(buf)
 		if err != nil && err != io.EOF {
 			return nil, err
@@ -117,7 +117,7 @@ func streamedDownload(resp *http.Response) ([]byte, error) {
 		copy(bodyBytes[offset:], buf[:n])
 		offset += n
 	}
-	fmt.Fprint(os.Stdout, "\r"+strings.Repeat(" ", 80)+"\r")
+	fmt.Fprint(os.Stderr, "\r"+strings.Repeat(" ", 80)+"\r")
 	if offset != int(size) {
 		return nil, fmt.Errorf("expected %d bytes, got %d", size, offset)
 	}

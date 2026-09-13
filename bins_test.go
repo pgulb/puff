@@ -113,7 +113,7 @@ func TestInstallFeaturedAllUpToDate(t *testing.T) {
 	ghAPIBase = srv.URL
 	dir := tempCfgDir(t)
 	meta := &MetadataList{Metadata: []Metadata{{Path: "owner/a", Version: "v1.0.0"}}}
-	errs := installFeatured(dir, []Repo{{Path: "owner/a", Regexp: `^a-v.*\.tar\.gz$`}}, "-", meta, &sync.Mutex{})
+	errs := installFeatured(dir, []Repo{{Path: "owner/a", Regexp: `^a-v.*\.tar\.gz$`}}, "-", meta, &sync.Mutex{}, nil)
 	if len(errs) != 0 {
 		t.Fatalf("expected no errors, got %v", errs)
 	}
@@ -147,7 +147,7 @@ func TestInstallFeaturedSomeUpdate(t *testing.T) {
 	ghAPIBase = srv.URL
 	dir := tempCfgDir(t)
 	meta := &MetadataList{Metadata: []Metadata{{Path: "owner/a", Version: "v1.0.0"}}}
-	errs := installFeatured(dir, []Repo{{Path: "owner/a", Regexp: `^a-v.*\.tar\.gz$`}}, "-", meta, &sync.Mutex{})
+	errs := installFeatured(dir, []Repo{{Path: "owner/a", Regexp: `^a-v.*\.tar\.gz$`}}, "-", meta, &sync.Mutex{}, nil)
 	if len(errs) != 0 {
 		t.Fatalf("expected no errors, got %v", errs)
 	}
@@ -201,7 +201,7 @@ func TestInstallFeaturedErrorCollected(t *testing.T) {
 	errs := installFeatured(dir, []Repo{
 		{Path: "owner/a", Regexp: `^a-v.*\.tar\.gz$`},
 		{Path: "owner/b", Regexp: `^b-v.*\.tar\.gz$`},
-	}, "-", meta, &sync.Mutex{})
+	}, "-", meta, &sync.Mutex{}, nil)
 	if len(errs) != 1 {
 		t.Fatalf("expected 1 error, got %d: %v", len(errs), errs)
 	}

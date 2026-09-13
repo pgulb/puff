@@ -18,6 +18,22 @@ const (
 	ansiCyan    = "\033[36m"
 )
 
+// Box-drawing glyphs used for bordered tables. When color is disabled these
+// still render as clean ASCII, so piped output stays readable.
+const (
+	tl = "┌"
+	tr = "┐"
+	bl = "└"
+	br = "┘"
+	ml = "├"
+	mr = "┤"
+	mt = "┬"
+	mb = "┴"
+	mx = "┼"
+	h  = "─"
+	v  = "│"
+)
+
 // colorEnabled reports whether the given writer is a terminal and so can
 // interpret ANSI escape codes. Output is uncolored when piped or redirected.
 func colorEnabled(w io.Writer) bool {
@@ -97,36 +113,65 @@ func truncate(text string, width int) string {
 	return text[:width-3] + "…"
 }
 
-// renderTable writes rows to w with each column padded to the given widths and
-// separated by two spaces. The header row (if any) is bolded and followed by a
-// rule line.
+// renderTable writes a bordered table to w. Headers are bolded and separated
+// from the body by a horizontal rule. Column widths are fixed.
 func renderTable(w io.Writer, headers []string, widths []int, rows [][]string) {
-	if len(headers) > 0 {
-		fmt.Fprint(w, Bold(w, padRight(headers[0], widths[0])))
-		for i := 1; i < len(headers); i++ {
-			fmt.Fprint(w, "  "+Bold(w, padRight(headers[i], widths[i])))
-		}
-		fmt.Fprintln(w)
-		rule := ""
-		for i, width := range widths {
-			if i > 0 {
-				rule += "  "
-			}
-			rule += strings.Repeat("─", width)
-		}
-		fmt.Fprintln(w, Dim(w, rule))
+	if len(headers) == 0 {
+		return
 	}
+	// Top border.
+	fmt.Fprint(w, tl)
+	for i, width := range widths {
+		fmt.Fprint(w, strings.Repeat(h, width+2))
+		if i < len(widths)-1 {
+			fmt.Fprint(w, mt)
+		}
+	}
+	fmt.Fprintln(w, tr)
+
+	// Header row.
+	fmt.Fprint(w, v)
+	for i, header := range headers {
+		fmt.Fprint(w, " " + Bold(w, padRight(header, widths[i])) + " " + v)
+	}
+	fmt.Fprintln(w)
+
+	// Header/body separator.
+	fmt.Fprint(w, ml)
+	for i, width := range widths {
+		fmt.Fprint(w, strings.Repeat(h, width+2))
+		if i < len(widths)-1 {
+			fmt.Fprint(w, mx)
+		}
+	}
+	fmt.Fprintln(w, mr)
+
+	// Body rows.
 	for _, row := range rows {
-		fmt.Fprint(w, padRight(row[0], widths[0]))
-		for i := 1; i < len(row); i++ {
-			fmt.Fprint(w, "  "+padRight(row[i], widths[i]))
+		fmt.Fprint(w, v)
+		for i := 0; i < len(headers); i++ {
+			cell := ""
+			if i < len(row) {
+				cell = row[i]
+			}
+			fmt.Fprint(w, " " + padRight(cell, widths[i]) + " " + v)
 		}
 		fmt.Fprintln(w)
 	}
+
+	// Bottom border.
+	fmt.Fprint(w, bl)
+	for i, width := range widths {
+		fmt.Fprint(w, strings.Repeat(h, width+2))
+		if i < len(widths)-1 {
+			fmt.Fprint(w, mb)
+		}
+	}
+	fmt.Fprintln(w, br)
 }
 
-// renderDynamicTable writes rows with column widths computed from the widest
-// cell in each column (plus a minimum width). Headers are bolded.
+// renderDynamicTable writes a bordered table with column widths computed from
+// the widest cell in each column (plus a minimum width). Headers are bolded.
 func renderDynamicTable(w io.Writer, headers []string, rows [][]string, minWidths ...int) {
 	if len(rows) == 0 {
 		return

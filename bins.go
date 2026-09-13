@@ -106,14 +106,21 @@ func saveRelease(
 // parallel, then download and install the ones that need updating, also in
 // parallel. metadata.json is NOT written; the caller writes it once.
 // Returns the list of errors for repos that failed (empty if all succeeded).
+// If progress is non-nil, each completed step (check or install) advances it.
 func installFeatured(
 	cfgDir string,
 	repos []Repo,
 	ghPat string,
 	meta *MetadataList,
 	metaMu *sync.Mutex,
+	progress *progressTracker,
 ) []error {
 	plans := checkRepos(repos, ghPat)
+	if progress != nil {
+		for range plans {
+			progress.tick()
+		}
+	}
 
 	var wg sync.WaitGroup
 	results := make([]installResult, len(plans))
@@ -128,6 +135,9 @@ func installFeatured(
 			p := plans[idx]
 			err := saveRelease(cfgDir, p.repo, p.release, ghPat, meta, metaMu)
 			results[idx] = installResult{path: p.repo.Path, err: err}
+			if progress != nil {
+				progress.tick()
+			}
 		}(i)
 	}
 	wg.Wait()
@@ -282,10 +292,14 @@ func Update(cfgDir string, ghPat string, metadata *MetadataList) error {
 	for i, m := range metadata.Metadata {
 		repos[i] = Repo{Path: m.Path}
 	}
+	// Total steps = per-repo check + per-repo install, plus the self-update.
+	total := len(repos)*2 + 1
+	progress := newProgressTracker(os.Stdout, total, "updating binaries")
 	metaMu := &sync.Mutex{}
-	errs := installFeatured(cfgDir, repos, ghPat, metadata, metaMu)
+	errs := installFeatured(cfgDir, repos, ghPat, metadata, metaMu, progress)
 
 	if len(errs) == 0 {
+		progress.tick() // self-update check
 		fmt.Fprintln(os.Stdout, "\n"+Bold(os.Stdout, "updating puff"))
 		puffRepo := Repo{Path: "pgulb/puff"}
 		puffRelease, err := GetLatestRelease(&puffRepo, ghPat)
@@ -299,15 +313,19 @@ func Update(cfgDir string, ghPat string, metadata *MetadataList) error {
 				fmt.Fprintf(os.Stderr, "%s\n", Red(os.Stderr, fmt.Sprintf("error updating puff: %v", err)))
 				errs = append(errs, err)
 			} else {
+				progress.tick() // self-update install
 				fmt.Fprintf(os.Stdout, "puff updated to %s\n", Green(os.Stdout, puffRelease.Version))
 			}
 		} else {
+			progress.tick() // self-update install (no-op)
 			fmt.Fprintf(os.Stdout, "puff is up to date at %s\n", Green(os.Stdout, Version))
 		}
 	} else {
+		progress.finish()
 		fmt.Fprintf(os.Stderr, "%s\n", Yellow(os.Stderr, fmt.Sprintf("skipping puff self-update due to %d repo error(s)", len(errs))))
+		return SaveMetadata(metadata, cfgDir)
 	}
-
+	progress.finish()
 	return SaveMetadata(metadata, cfgDir)
 }
 
