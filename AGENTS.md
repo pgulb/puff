@@ -1,234 +1,59 @@
-# Agent Instructions for puff
+# AGENTS.md — puff
 
-This file contains instructions for AI coding agents working on the puff project. Puff is a simple binary package manager for downloading and updating binary releases from GitHub repositories.
+Puff is a simple binary package manager for downloading/updating binary releases from GitHub repositories. It is a Go CLI tool (Go 1.25.3) with configuration stored in `~/.config/puff/`.
 
-## Project Overview
-- **Language**: Go 1.25.3
-- **Purpose**: Package manager for GitHub binary releases
-- **Architecture**: CLI tool with configuration stored in `~/.config/puff/`
+## Commands
 
-## Featured Repositories Management
+All commands use the `go1.25.3` toolchain explicitly (not plain `go`).
 
-### Adding New Featured Repositories
-- when adding, make sure to do steps from 'Testing New Repositories' section
-- Featured repositories are predefined popular CLI tools that users can install with `puff add <repo>`
-- Located in `metadata.go` in the `AvailableRepos()` function
-- Each repo requires:
-  - `Path`: GitHub repository path (e.g., "sharkdp/bat")
-  - `Desc`: Short description of the tool
-  - `Regexp`: Regex pattern to match the Linux x86_64 binary asset in GitHub releases
-
-### Repository Selection Criteria
-- Must provide pre-compiled static Linux x86_64 binaries in GitHub releases (actual binary executables, not Python wheels or other non-binary formats)
-- Popular and widely-used CLI tools for development/DevOps
-- No complex dependencies or installation requirements
-- Not GUI applications or tools requiring special terminal features
-- Complements existing featured repos without significant overlap
-
-### Testing New Repositories
-1. Verify GitHub releases contain Linux x86_64 binaries
-2. Test regex pattern matches the correct asset name
-3. Build the project using `task build`
-4. Run `puff add <repo>` with the newly built binary to install the repo
-5. Using the absolute path of the installed binary, run it with `--help` to confirm it was downloaded and displays help
-6. DO NOT update this document with new added repo names
-
-### Rejected Repositories
-See `rejected_repos.txt` for repositories that were considered but rejected for inclusion. This file contains only repo paths (one per line) to avoid re-evaluating the same repos. Always check the entire file before adding new entries to avoid duplicates. Do not add descriptions or reasons to this file.
-
-## Build/Lint/Test Commands
-
-### Building
 ```bash
-# Build the binary
-task build
+task build      # builds binary: go1.25.3 build -o puff cmd/main.go
+task run        # runs from source: go1.25.3 run cmd/main.go
+go1.25.3 vet ./...   # vet for suspicious code
 ```
 
-### Linting and Formatting
-```bash
+There are **no tests** in this repo (no `*_test.go` files). There is no linter or formatter configured.
 
-# Vet for suspicious code
-go1.25.3 vet ./...
-```
+## Architecture
 
-## Code Style Guidelines
+- **Entry point**: `cmd/main.go` → calls `puff.Run()` in the root package.
+- **Root package** (`.`) contains all library code split by concern:
+  - `cli.go` — argument parsing and command dispatch (`Run` switches on `list`/`search`/`add`/`upd`/`rm`/`version`, calling `listCmd`, `searchCmd`, `addCmd`, `updCmd`, `rmCmd`)
+  - `metadata.go` — `AvailableRepos()` (featured repos), metadata read/write, `Version` constant
+  - `bins.go` — binary download, extraction from `.tar.gz`, install/update/remove logic
+  - `gh_api.go` — GitHub API client (authenticated HTTP, release lookup, streaming download)
+  - `setup.go` — config directory creation, GitHub PAT management, PATH setup prompts
+- **Config directory**: `~/.config/puff/` (created on first run). Contains:
+  - `bin/` — installed binaries
+  - `metadata.json` — tracks installed binaries and their versions
+  - `gh_pat` — GitHub Personal Access Token (file mode `0600`). Sentinel value `"-"` means no PAT.
+- **No external dependencies** — `go.mod` has no third-party requires; standard library only.
 
-### Imports
-- Group imports: standard library first, then blank line, then third-party packages
-- Use parentheses for multi-line imports
-- Remove unused imports automatically
+## Adding a Featured Repository
 
-```go
-import (
-    "fmt"
-    "os"
-    "path/filepath"
+Featured repos are defined in `metadata.go` in `AvailableRepos()` as `Repo` structs with `Path`, `Desc`, and `Regexp`.
 
-    "github.com/some/package"
-)
-```
+To add one:
+1. Verify the repo's GitHub releases contain a Linux x86_64 static binary.
+2. Add a `Repo` entry with a regex that matches the correct asset name.
+3. Build and test: `task build && puff add <repo>`, then run the installed binary with `--help`.
+4. Check `rejected_repos.txt` first to avoid re-evaluating rejected repos. Do not add reasons/descriptions to that file — repo paths only, one per line.
 
-### Naming Conventions
-- **Functions/Methods**: PascalCase for exported, camelCase for unexported
-- **Variables**: camelCase throughout
-- **Constants**: PascalCase for exported, camelCase for unexported
-- **Types/Structs**: PascalCase
-- **Package name**: lowercase, single word (current: `puff`)
+## Custom Repos
 
-### Error Handling
-- Check errors immediately after function calls
-- Use `if err != nil` pattern consistently
-- Return errors up the call stack rather than handling globally
-- Use `fmt.Errorf` for wrapping errors with context
+If a repo is not in `AvailableRepos()`, `puff add <repo>` falls back to custom installation: it lists all release assets, prompts the user for name-part strings to match the binary, downloads it, and saves it to `bin/`.
 
-```go
-func example() error {
-    result, err := someFunction()
-    if err != nil {
-        return fmt.Errorf("failed to get result: %w", err)
-    }
-    return nil
-}
-```
+## Versioning
 
-### Function Structure
-- Public functions start with capital letters
-- Add comments above public functions explaining their purpose
-- Keep functions focused on single responsibilities
-- Use early returns to reduce nesting
+`Version` is a string constant in `metadata.go` (currently `"v0.10.0"`). The `upd` command checks `pgulb/puff` for a newer release and self-updates.
 
-```go
-// exampleFunction processes the input and returns a result
-func exampleFunction(input string) (string, error) {
-    if input == "" {
-        return "", errors.New("input cannot be empty")
-    }
+## CI
 
-    // Process input
-    result := processInput(input)
-    return result, nil
-}
-```
+`.github/workflows/go.yml` builds and uploads the binary on tag pushes only. Build command in CI: `CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o ./puff cmd/main.go`.
 
-### File Organization
-- Main entry point: `cmd/main.go`
-- Library code: root level `.go` files
-- Configuration/setup: `setup.go`
-- Binary operations: `bins.go`
-- Metadata handling: `metadata.go`
-- API interactions: `gh_api.go`
+## Security / Conventions
 
-### Comments
-- Add package comments for non-main packages
-- Document exported functions with clear descriptions
-- Use `//` for single-line comments
-- Keep comments concise but informative
-
-### Constants and Types
-- Define constants for magic numbers/strings
-- Use meaningful names for custom types
-- Group related constants together
-
-```go
-const (
-    DefaultTimeout = 30
-    ConfigDir      = "puff"
-)
-
-type Config struct {
-    Timeout int
-    Path    string
-}
-```
-
-### Path Handling
-- Use `filepath.Join` instead of string concatenation
-- Use `os.UserConfigDir()` and `os.UserHomeDir()` for user directories
-- Validate paths before using them
-
-### Security Considerations
-- Store sensitive data (like GitHub PAT) with appropriate file permissions (0600)
-- Validate user input before processing
-- Use HTTPS URLs by default
-- Avoid logging sensitive information
-
-### Testing Guidelines
-- Create `*_test.go` files alongside code being tested
-- Use table-driven tests for multiple test cases
-- Test error conditions explicitly
-- Use `t.Run` for subtests to organize test suites
-
-```go
-func TestExample(t *testing.T) {
-    tests := []struct {
-        name     string
-        input    string
-        expected string
-        wantErr  bool
-    }{
-        {"valid input", "test", "TEST", false},
-        {"empty input", "", "", true},
-    }
-
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            result, err := exampleFunction(tt.input)
-            if tt.wantErr {
-                assert.Error(t, err)
-            } else {
-                assert.NoError(t, err)
-                assert.Equal(t, tt.expected, result)
-            }
-        })
-    }
-}
-```
-
-### Dependencies
-- Keep dependencies minimal
-- Use Go standard library when possible
-- Document any new dependencies in PR descriptions
-- Update `go.mod` appropriately
-
-### Configuration Management
-- Store config in `~/.config/puff/`
-- Use JSON for structured data storage
-- Create directories with appropriate permissions (0750)
-- Handle missing config files gracefully
-
-### CLI Interface
-- Use `os.Args` for argument parsing (keep simple)
-- Provide clear usage messages
-- Exit with code 1 for errors, 0 for success
-- Use consistent output formatting
-
-### Version Management
-- Keep version as a constant in code
-- Update version for releases
-- Use semantic versioning
-
-### Git Workflow
-- Commit messages should be clear and descriptive
-- Use conventional commits when possible: `feat:`, `fix:`, `docs:`, etc.
-- Keep commits focused on single changes
-- Test before committing
-
-### Performance Considerations
-- Avoid unnecessary allocations in hot paths
-- Use buffered I/O for file operations
-- Consider memory usage for large downloads
-- Profile performance-critical code
-
-### Logging
-- Use `fmt.Printf` for user-facing output
-- Log errors to stderr
-- Consider adding structured logging for debugging
-- Don't log sensitive information
-
-### Platform Compatibility
-- Test on Linux, macOS, and Windows when possible
-- Use `runtime.GOOS` and `runtime.GOARCH` for platform-specific code
-- Handle path separators correctly with `filepath`
-
-This document should be updated as the codebase evolves and new patterns emerge.</content>
-<parameter name="filePath">AGENTS.md
+- PAT is stored in `~/.config/puff/gh_pat` with `0600` permissions. The PAT needs no GitHub scopes (used only to avoid API rate limits).
+- The `.env` file at repo root contains a real PAT but is gitignored (`*.env` in `.gitignore`); never commit secrets.
+- Error handling: check errors immediately, wrap with `fmt.Errorf("...: %w", err)`, use `log.Fatal` for unrecoverable setup errors.
+- Exit code 1 for errors, 0 for success.
