@@ -8,14 +8,15 @@ import (
 )
 
 func printHelp() {
-	fmt.Println("puff - simple binary package manager for GitHub releases")
-	fmt.Println("Usage:")
-	fmt.Println("  puff list -> list installed binaries")
-	fmt.Println("  puff search <name (opt.)> -> search pre-added repositories")
-	fmt.Println("  puff add <repo> <repo>... -> install binary from repo(s)")
-	fmt.Println("  puff upd -> update all installed binaries")
-	fmt.Println("  puff rm <repo> <repo>... -> remove installed binary/ies")
-	fmt.Println("  puff version|--version|-v -> print puff version")
+	fmt.Fprintln(os.Stderr, Bold(os.Stderr, "puff"), Dim(os.Stderr, "- simple binary package manager for GitHub releases"))
+	fmt.Fprintln(os.Stderr, "")
+	fmt.Fprintln(os.Stderr, "Usage:")
+	fmt.Fprintln(os.Stderr, "  "+Cyan(os.Stderr, "list")+"     -> list installed binaries")
+	fmt.Fprintln(os.Stderr, "  "+Cyan(os.Stderr, "search")+"  <name (opt.)> -> search pre-added repositories")
+	fmt.Fprintln(os.Stderr, "  "+Cyan(os.Stderr, "add")+"     <repo> <repo>... -> install binary from repo(s)")
+	fmt.Fprintln(os.Stderr, "  "+Cyan(os.Stderr, "upd")+"     -> update all installed binaries")
+	fmt.Fprintln(os.Stderr, "  "+Cyan(os.Stderr, "rm")+"      <repo> <repo>... -> remove installed binary/ies")
+	fmt.Fprintln(os.Stderr, "  "+Cyan(os.Stderr, "version")+"|--version|-v -> print puff version")
 	os.Exit(1)
 }
 
@@ -75,31 +76,47 @@ func listCmd(cfgDir string) {
 		log.Fatal(err.Error())
 	}
 	if len(metadata.Metadata) == 0 {
-		log.Fatal("No installed binaries found.")
-	} else {
-		for _, v := range metadata.Metadata {
-			fmt.Printf("- %s (version: %s)\n", v.Path, v.Version)
-		}
+		fmt.Println("No installed binaries found.")
+		return
 	}
+	rows := make([][]string, 0, len(metadata.Metadata))
+	for _, v := range metadata.Metadata {
+		name := v.Path
+		if parts := strings.Split(v.Path, "/"); len(parts) > 0 {
+			name = parts[len(parts)-1]
+		}
+		rows = append(rows, []string{name, v.Version})
+	}
+	fmt.Println()
+	renderTable(os.Stdout, []string{"Binary", "Version"}, []int{24, 16}, rows)
+	fmt.Println()
 }
 
 // search featured repositories
 func searchCmd() {
-	if len(os.Args) < 3 {
-		for _, repo := range *AvailableRepos() {
-			fmt.Printf("- %s - %s\n", repo.Path, repo.Desc)
-		}
-	} else {
-		searchTerm := os.Args[2]
-		for _, repo := range *AvailableRepos() {
-			if strings.Contains(
-				strings.ToLower(repo.Path),
-				strings.ToLower(searchTerm)) || strings.Contains(
-				strings.ToLower(repo.Desc), strings.ToLower(searchTerm)) {
-				fmt.Printf("- %s - %s\n", repo.Path, repo.Desc)
+	repos := *AvailableRepos()
+	if len(os.Args) >= 3 {
+		searchTerm := strings.ToLower(os.Args[2])
+		filtered := make([]Repo, 0, len(repos))
+		for _, repo := range repos {
+			if strings.Contains(strings.ToLower(repo.Path), searchTerm) ||
+				strings.Contains(strings.ToLower(repo.Desc), searchTerm) {
+				filtered = append(filtered, repo)
 			}
 		}
+		repos = filtered
 	}
+	if len(repos) == 0 {
+		fmt.Println("No matching repositories found.")
+		return
+	}
+	rows := make([][]string, 0, len(repos))
+	for _, repo := range repos {
+		rows = append(rows, []string{repo.Path, truncate(repo.Desc, 80)})
+	}
+	fmt.Println()
+	renderDynamicTable(os.Stdout, []string{"Repository", "Description"}, rows, 12, 8)
+	fmt.Println()
 }
 
 // install binary/binaries
@@ -109,6 +126,7 @@ func addCmd(cfgDir string, ghPat string) {
 	}
 	reposToAdd := os.Args[2:]
 	for _, installRepo := range reposToAdd {
+		fmt.Fprintln(os.Stdout, Cyan(os.Stdout, "installing ")+installRepo)
 		err := Add(cfgDir, &installRepo, ghPat)
 		if err != nil {
 			log.Fatal(err.Error())
@@ -118,7 +136,7 @@ func addCmd(cfgDir string, ghPat string) {
 
 // update all installed binaries and puff itself
 func updCmd(cfgDir string, ghPat string) {
-	fmt.Println("Updating all installed binaries")
+	fmt.Fprintln(os.Stdout, Bold(os.Stdout, "Updating all installed binaries"))
 	metadata, err := GetMetadata(cfgDir)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -161,7 +179,7 @@ func Run() {
 	case "rm":
 		rmCmd(cfgDir)
 	case "version", "--version", "-v":
-		fmt.Println(Version)
+		fmt.Println(Bold(os.Stdout, "puff") + " " + Cyan(os.Stdout, Version))
 	default:
 		printHelp()
 	}

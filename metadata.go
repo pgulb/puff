@@ -309,7 +309,7 @@ func GetMetadata(cfgDir string) (*MetadataList, error) {
 // stores MetadataList into metadata.json atomically (write to tmp file then
 // rename over the final path) so a crash mid-write cannot corrupt the file.
 func SaveMetadata(meta *MetadataList, cfgDir string) error {
-	fmt.Println("saving metadata.json")
+	fmt.Fprintln(os.Stdout, Dim(os.Stdout, "saving metadata.json"))
 	metadataFile := filepath.Join(cfgDir, "metadata.json")
 	data, err := json.MarshalIndent(meta, "", "  ")
 	if err != nil {
@@ -335,17 +335,17 @@ func AddMetaIfNotExists(
 		if metadata.Metadata[i].Path == repo.Path {
 			// no action required
 			if metadata.Metadata[i].Version == release.Version {
-				fmt.Println("no action required")
+				fmt.Fprintln(os.Stdout, Dim(os.Stdout, "no action required"))
 				return false, nil
 			}
 			// update version in metadata entry
-			fmt.Println("new version found, updating metadata")
+			fmt.Fprintln(os.Stdout, Dim(os.Stdout, "new version found, updating metadata"))
 			metadata.Metadata[i].Version = release.Version
 			return true, nil
 		}
 	}
 	// add new entry if not found
-	fmt.Println("adding new metadata")
+	fmt.Fprintln(os.Stdout, Dim(os.Stdout, "adding new metadata"))
 	metadata.Metadata = append(metadata.Metadata, Metadata{
 		Path:      repo.Path,
 		Version:   release.Version,

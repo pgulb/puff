@@ -77,7 +77,7 @@ func saveRelease(
 	needs := needsUpdate(meta, &repo, release)
 	metaMu.Unlock()
 	if !needs {
-		fmt.Printf("%s at version %s already installed\n", repo.Path, release.Version)
+		fmt.Printf("%s at %s already installed\n", repo.Path, Yellow(os.Stdout, release.Version))
 		return nil
 	}
 
@@ -93,11 +93,11 @@ func saveRelease(
 		return err
 	}
 	if !added {
-		fmt.Printf("%s at version %s already installed\n", repo.Path, release.Version)
+		fmt.Printf("%s at %s already installed\n", repo.Path, Yellow(os.Stdout, release.Version))
 		return nil
 	}
 	fmt.Printf(
-		"%s at version %s successfully installed!\n", repo.Path, release.Version,
+		"%s at %s successfully installed!\n", repo.Path, Green(os.Stdout, release.Version),
 	)
 	return nil
 }
@@ -135,7 +135,7 @@ func installFeatured(
 	var errs []error
 	for _, r := range results {
 		if r.err != nil {
-			fmt.Fprintf(os.Stderr, "error installing %s: %v\n", r.path, r.err)
+			fmt.Fprintf(os.Stderr, "%s\n", Red(os.Stderr, fmt.Sprintf("error installing %s: %v", r.path, r.err)))
 			errs = append(errs, r.err)
 		}
 	}
@@ -158,7 +158,7 @@ func validateGhCustomResp(ghResp *GithubResponse) error {
 
 // addCustom handles the add command for custom repos (sequential, interactive).
 func addCustom(cfgDir string, installRepo *string, ghPat string) error {
-	fmt.Println("binary not found in featured repos")
+	fmt.Fprintln(os.Stdout, Dim(os.Stdout, "binary not found in featured repos"))
 	ghResp, err := GetLatestReleaseAssets(*installRepo, ghPat)
 	if err != nil {
 		return err
@@ -178,9 +178,9 @@ func addCustom(cfgDir string, installRepo *string, ghPat string) error {
 		fmt.Printf("%s custom repo already added\n", *installRepo)
 		nameParts = isAdded.NameParts
 	} else {
-		fmt.Println("\nAvailable binaries:")
+		fmt.Fprintln(os.Stdout, "\n"+Bold(os.Stdout, "Available binaries:"))
 		for _, v := range ghResp.Assets {
-			fmt.Println(v.Name)
+			fmt.Fprintln(os.Stdout, Dim(os.Stdout, v.Name))
 		}
 		nameParts = PromptForNameParts()
 	}
@@ -199,7 +199,7 @@ func addCustom(cfgDir string, installRepo *string, ghPat string) error {
 			// Sequential, interactive install: mutate metadata only after a
 			// successful download, then write atomically.
 			if !needsUpdate(meta, &repo, release) {
-				fmt.Printf("%s at version %s already installed\n", repo.Path, release.Version)
+				fmt.Printf("%s at %s already installed\n", repo.Path, Yellow(os.Stdout, release.Version))
 				break
 			}
 			if err := DownloadBinary(cfgDir, &repo, release, ghPat); err != nil {
@@ -210,11 +210,11 @@ func addCustom(cfgDir string, installRepo *string, ghPat string) error {
 				return err
 			}
 			if !added {
-				fmt.Printf("%s at version %s already installed\n", repo.Path, release.Version)
+				fmt.Printf("%s at %s already installed\n", repo.Path, Yellow(os.Stdout, release.Version))
 				break
 			}
 			fmt.Printf(
-				"%s at version %s successfully installed!\n", repo.Path, release.Version,
+				"%s at %s successfully installed!\n", repo.Path, Green(os.Stdout, release.Version),
 			)
 			if err := SaveMetadata(meta, cfgDir); err != nil {
 				return err
@@ -232,14 +232,14 @@ func addFeatured(cfgDir string, repo Repo, ghPat string) error {
 	if plan.err != nil {
 		return plan.err
 	}
-	fmt.Printf("latest version: %s\n", plan.release.Version)
+	fmt.Fprintf(os.Stdout, "latest version: %s\n", Cyan(os.Stdout, plan.release.Version))
 
 	meta, err := GetMetadata(cfgDir)
 	if err != nil {
 		return err
 	}
 	if !needsUpdate(meta, &repo, plan.release) {
-		fmt.Printf("%s at version %s already installed\n", repo.Path, plan.release.Version)
+		fmt.Printf("%s at %s already installed\n", repo.Path, Yellow(os.Stdout, plan.release.Version))
 		return nil
 	}
 	if err := DownloadBinary(cfgDir, &repo, plan.release, ghPat); err != nil {
@@ -250,11 +250,11 @@ func addFeatured(cfgDir string, repo Repo, ghPat string) error {
 		return err
 	}
 	if !added {
-		fmt.Printf("%s at version %s already installed\n", repo.Path, plan.release.Version)
+		fmt.Printf("%s at %s already installed\n", repo.Path, Yellow(os.Stdout, plan.release.Version))
 		return nil
 	}
 	fmt.Printf(
-		"%s at version %s successfully installed!\n", repo.Path, plan.release.Version,
+		"%s at %s successfully installed!\n", repo.Path, Green(os.Stdout, plan.release.Version),
 	)
 	return SaveMetadata(meta, cfgDir)
 }
@@ -263,7 +263,6 @@ func addFeatured(cfgDir string, repo Repo, ghPat string) error {
 // called from Update; for a single add, the featured path is sequential.
 // metadata.json is written once, atomically, after the install completes.
 func Add(cfgDir string, installRepo *string, ghPat string) error {
-	fmt.Printf("installing %s\n", *installRepo)
 	for _, repo := range *AvailableRepos() {
 		if repo.Path == *installRepo {
 			return addFeatured(cfgDir, repo, ghPat)
@@ -276,7 +275,7 @@ func Add(cfgDir string, installRepo *string, ghPat string) error {
 // sequentially if every repo update succeeded. metadata.json is written once,
 // atomically, at the end.
 func Update(cfgDir string, ghPat string, metadata *MetadataList) error {
-	fmt.Print("---\n\n")
+	fmt.Fprintln(os.Stdout, Bold(os.Stdout, "──")+" "+Bold(os.Stdout, "updating installed binaries")+" "+Dim(os.Stdout, "──"))
 
 	// Convert installed metadata entries into Repo values for checking.
 	repos := make([]Repo, len(metadata.Metadata))
@@ -287,26 +286,26 @@ func Update(cfgDir string, ghPat string, metadata *MetadataList) error {
 	errs := installFeatured(cfgDir, repos, ghPat, metadata, metaMu)
 
 	if len(errs) == 0 {
-		fmt.Println("updating puff")
+		fmt.Fprintln(os.Stdout, "\n"+Bold(os.Stdout, "updating puff"))
 		puffRepo := Repo{Path: "pgulb/puff"}
 		puffRelease, err := GetLatestRelease(&puffRepo, ghPat)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error checking for puff update: %v\n", err)
+			fmt.Fprintf(os.Stderr, "%s\n", Red(os.Stderr, fmt.Sprintf("error checking for puff update: %v", err)))
 			errs = append(errs, err)
 		} else if puffRelease.Version != Version {
-			fmt.Printf("new version available: %s\n", puffRelease.Version)
+			fmt.Fprintf(os.Stdout, "new version available: %s\n", Cyan(os.Stdout, puffRelease.Version))
 			err := DownloadBinary(cfgDir, &puffRepo, puffRelease, ghPat)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "error updating puff: %v\n", err)
+				fmt.Fprintf(os.Stderr, "%s\n", Red(os.Stderr, fmt.Sprintf("error updating puff: %v", err)))
 				errs = append(errs, err)
 			} else {
-				fmt.Printf("puff updated to version %s\n", puffRelease.Version)
+				fmt.Fprintf(os.Stdout, "puff updated to %s\n", Green(os.Stdout, puffRelease.Version))
 			}
 		} else {
-			fmt.Printf("puff is up to date at version %s\n", Version)
+			fmt.Fprintf(os.Stdout, "puff is up to date at %s\n", Green(os.Stdout, Version))
 		}
 	} else {
-		fmt.Fprintf(os.Stderr, "skipping puff self-update due to %d repo error(s)\n", len(errs))
+		fmt.Fprintf(os.Stderr, "%s\n", Yellow(os.Stderr, fmt.Sprintf("skipping puff self-update due to %d repo error(s)", len(errs))))
 	}
 
 	return SaveMetadata(metadata, cfgDir)
@@ -329,7 +328,7 @@ func Remove(cfgDir string, removeRepo *string) error {
 			var removed bool
 			for _, v := range binaries {
 				if v.Name() == expectedBinary {
-					fmt.Printf("removing %s binary\n", v.Name())
+					fmt.Fprintf(os.Stdout, "removing %s binary\n", Dim(os.Stdout, v.Name()))
 					removed = true
 					err := os.Remove(filepath.Join(binDir, v.Name()))
 					if err != nil {
@@ -341,7 +340,7 @@ func Remove(cfgDir string, removeRepo *string) error {
 			if !removed {
 				return fmt.Errorf("binary for %s not found to remove", expectedBinary)
 			}
-			fmt.Printf("removing %s from metadata\n", *removeRepo)
+			fmt.Fprintf(os.Stdout, "removing %s from metadata\n", Dim(os.Stdout, *removeRepo))
 			var newMeta []Metadata
 			for _, metaEntry := range meta.Metadata {
 				if metaEntry.Path != *removeRepo {
@@ -359,7 +358,7 @@ func Remove(cfgDir string, removeRepo *string) error {
 // over the final path, so a failed or interrupted download never leaves a
 // half-written executable in place.
 func saveBin(savePath string, tempPath string, binName string, fileBytes []byte) error {
-	fmt.Printf("writing %s to %s\n", binName, tempPath)
+	fmt.Fprintf(os.Stdout, "writing %s to %s\n", Dim(os.Stdout, binName), Dim(os.Stdout, tempPath))
 	err := os.WriteFile(tempPath, fileBytes, 0750)
 	if err != nil {
 		return err
@@ -368,7 +367,7 @@ func saveBin(savePath string, tempPath string, binName string, fileBytes []byte)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("installed %s\n", binName)
+	fmt.Fprintf(os.Stdout, "installed %s\n", Green(os.Stdout, binName))
 	return nil
 }
 

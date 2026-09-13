@@ -25,7 +25,7 @@ func MustCreateCfgDir() string {
 		fmt.Printf("error creating %s config directory: %v", cfgDir, err)
 		os.Exit(1)
 	} else {
-		fmt.Printf("Created config directory %s\n", cfgDir)
+		fmt.Fprintf(os.Stdout, "Created config directory %s\n", Green(os.Stdout, cfgDir))
 	}
 	return cfgDir
 }
@@ -56,7 +56,7 @@ func PromptForGhPat(cfgDir string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("gh_pat written to %s\n", filepath.Join(cfgDir, "gh_pat"))
+	fmt.Fprintf(os.Stdout, "gh_pat written to %s\n", Green(os.Stdout, filepath.Join(cfgDir, "gh_pat")))
 	return nil
 }
 
@@ -84,14 +84,14 @@ func PromptForAddToPath(cfgDir string) error {
 		if err != nil {
 			return err
 		}
-		if strings.Contains(string(data), binDir) {
-			fmt.Printf("puff bin dir already in PATH in %s\n", shell)
-			continue
-		}
-		fmt.Printf("Add puff directory to PATH in ~/%s? (y/n): ", shell)
-		fmt.Scanln(&path)
-		if path == "y" {
-			fmt.Printf("adding puff bin dir to PATH in %s\n", shell)
+if strings.Contains(string(data), binDir) {
+				fmt.Fprintf(os.Stdout, "puff bin dir already in PATH in %s\n", Dim(os.Stdout, shell))
+				continue
+			}
+			fmt.Printf("Add puff directory to PATH in ~/%s? (y/n): ", shell)
+			fmt.Scanln(&path)
+			if path == "y" {
+				fmt.Fprintf(os.Stdout, "adding puff bin dir to PATH in %s\n", Green(os.Stdout, shell))
 			f, err := os.OpenFile(filepath.Join(home, shell), os.O_APPEND|os.O_WRONLY, 0600)
 			if err != nil {
 				return err
@@ -133,7 +133,7 @@ func MustCreateBinDir(cfgDir string) error {
 		}
 		return err
 	} else {
-		fmt.Printf("Created bin directory %s\n", binDir)
+		fmt.Fprintf(os.Stdout, "Created bin directory %s\n", Green(os.Stdout, binDir))
 	}
 	return nil
 }
