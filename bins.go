@@ -60,6 +60,8 @@ func checkRepos(repos []Repo, ghPat string) []installPlan {
 // write metadata.json to disk; the caller is responsible for a single atomic
 // write after all installs complete.
 // Only valid when called from installFeatured (meta and metaMu are non-nil).
+// If screen is non-nil, status lines are recorded there and redrawn in place;
+// otherwise they are printed directly.
 func saveRelease(
 	cfgDir string,
 	repo Repo,
@@ -67,6 +69,7 @@ func saveRelease(
 	ghPat string,
 	meta *MetadataList,
 	metaMu *sync.Mutex,
+	screen *screen,
 ) error {
 	if release == nil {
 		return errors.New("no release to install")
@@ -77,6 +80,11 @@ func saveRelease(
 	needs := needsUpdate(meta, &repo, release)
 	metaMu.Unlock()
 	if !needs {
+		if screen != nil {
+			screen.line("%s at %s already installed", repo.Path, Yellow(os.Stdout, release.Version))
+			screen.tick()
+			return nil
+		}
 		fmt.Printf("%s at %s already installed\n", repo.Path, Yellow(os.Stdout, release.Version))
 		return nil
 	}
@@ -93,7 +101,17 @@ func saveRelease(
 		return err
 	}
 	if !added {
+		if screen != nil {
+			screen.line("%s at %s already installed", repo.Path, Yellow(os.Stdout, release.Version))
+			screen.tick()
+			return nil
+		}
 		fmt.Printf("%s at %s already installed\n", repo.Path, Yellow(os.Stdout, release.Version))
+		return nil
+	}
+	if screen != nil {
+		screen.line("%s at %s successfully installed!", repo.Path, Green(os.Stdout, release.Version))
+		screen.tick()
 		return nil
 	}
 	fmt.Printf(
@@ -106,19 +124,20 @@ func saveRelease(
 // parallel, then download and install the ones that need updating, also in
 // parallel. metadata.json is NOT written; the caller writes it once.
 // Returns the list of errors for repos that failed (empty if all succeeded).
-// If progress is non-nil, each completed step (check or install) advances it.
+// If screen is non-nil, status lines are recorded there and redrawn in place
+// with a progress bar; otherwise they are printed directly.
 func installFeatured(
 	cfgDir string,
 	repos []Repo,
 	ghPat string,
 	meta *MetadataList,
 	metaMu *sync.Mutex,
-	progress *progressTracker,
+	screen *screen,
 ) []error {
 	plans := checkRepos(repos, ghPat)
-	if progress != nil {
+	if screen != nil {
 		for range plans {
-			progress.tick()
+			screen.tick()
 		}
 	}
 
@@ -133,11 +152,8 @@ func installFeatured(
 		go func(idx int) {
 			defer wg.Done()
 			p := plans[idx]
-			err := saveRelease(cfgDir, p.repo, p.release, ghPat, meta, metaMu)
+			err := saveRelease(cfgDir, p.repo, p.release, ghPat, meta, metaMu, screen)
 			results[idx] = installResult{path: p.repo.Path, err: err}
-			if progress != nil {
-				progress.tick()
-			}
 		}(i)
 	}
 	wg.Wait()
@@ -294,12 +310,15 @@ func Update(cfgDir string, ghPat string, metadata *MetadataList) error {
 	}
 	// Total steps = per-repo check + per-repo install, plus the self-update.
 	total := len(repos)*2 + 1
-	progress := newProgressTracker(os.Stdout, total, "updating binaries")
+	screen := newScreen(os.Stdout)
+	screen.total = total
+	screen.begin()
+
 	metaMu := &sync.Mutex{}
-	errs := installFeatured(cfgDir, repos, ghPat, metadata, metaMu, progress)
+	errs := installFeatured(cfgDir, repos, ghPat, metadata, metaMu, screen)
 
 	if len(errs) == 0 {
-		progress.tick() // self-update check
+		screen.tick() // self-update check
 		fmt.Fprintln(os.Stdout, "\n"+Bold(os.Stdout, "updating puff"))
 		puffRepo := Repo{Path: "pgulb/puff"}
 		puffRelease, err := GetLatestRelease(&puffRepo, ghPat)
@@ -313,19 +332,17 @@ func Update(cfgDir string, ghPat string, metadata *MetadataList) error {
 				fmt.Fprintf(os.Stderr, "%s\n", Red(os.Stderr, fmt.Sprintf("error updating puff: %v", err)))
 				errs = append(errs, err)
 			} else {
-				progress.tick() // self-update install
+				screen.tick() // self-update install
 				fmt.Fprintf(os.Stdout, "puff updated to %s\n", Green(os.Stdout, puffRelease.Version))
 			}
 		} else {
-			progress.tick() // self-update install (no-op)
+			screen.tick() // self-update install (no-op)
 			fmt.Fprintf(os.Stdout, "puff is up to date at %s\n", Green(os.Stdout, Version))
 		}
 	} else {
-		progress.finish()
 		fmt.Fprintf(os.Stderr, "%s\n", Yellow(os.Stderr, fmt.Sprintf("skipping puff self-update due to %d repo error(s)", len(errs))))
-		return SaveMetadata(metadata, cfgDir)
 	}
-	progress.finish()
+	screen.finish()
 	return SaveMetadata(metadata, cfgDir)
 }
 
