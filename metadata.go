@@ -306,7 +306,8 @@ func GetMetadata(cfgDir string) (*MetadataList, error) {
 	return &metadata, nil
 }
 
-// stores MetadataList into metadata.json
+// stores MetadataList into metadata.json atomically (write to tmp file then
+// rename over the final path) so a crash mid-write cannot corrupt the file.
 func SaveMetadata(meta *MetadataList, cfgDir string) error {
 	fmt.Println("saving metadata.json")
 	metadataFile := filepath.Join(cfgDir, "metadata.json")
@@ -314,11 +315,12 @@ func SaveMetadata(meta *MetadataList, cfgDir string) error {
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(metadataFile, data, 0600)
+	tmpFile := metadataFile + ".tmp"
+	err = os.WriteFile(tmpFile, data, 0600)
 	if err != nil {
 		return err
 	}
-	return nil
+	return os.Rename(tmpFile, metadataFile)
 }
 
 // add Repo to MetadataList if not present,
@@ -386,4 +388,15 @@ func IsCustomRepoAdded(metadata *MetadataList, path string) Metadata {
 		}
 	}
 	return Metadata{}
+}
+
+// needsUpdate reports whether the repo's metadata entry is missing or at a
+// different version than the given release. Read-only; does not mutate.
+func needsUpdate(metadata *MetadataList, repo *Repo, release *Release) bool {
+	for i := range metadata.Metadata {
+		if metadata.Metadata[i].Path == repo.Path {
+			return metadata.Metadata[i].Version != release.Version
+		}
+	}
+	return true
 }

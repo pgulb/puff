@@ -43,6 +43,15 @@ To add one:
 
 If a repo is not in `AvailableRepos()`, `puff add <repo>` falls back to custom installation: it lists all release assets, prompts the user for name-part strings to match the binary, downloads it, and saves it to `bin/`.
 
+## Update Concurrency & Safety
+
+`puff upd` (and multi-repo `puff add`) check all installed repos in parallel, then download and install the ones needing updates, also in parallel. Custom (interactive) repos stay sequential. Failures are collected, not fatal: one repo's failure prints to stderr and continues; the command exits non-zero if any repo failed. `puff` self-updates last, sequentially, only if every repo update succeeded.
+
+State is written safely:
+- **metadata.json** is loaded once, mutated under a mutex, and written once atomically (write to `.tmp` then `rename`) at the end.
+- **binaries** are always written to `<name>.tmp` then renamed over the final path, so a failed/interrupted download never leaves a half-written executable.
+- Metadata is only mutated *after* a download succeeds, so a failed download cannot leave metadata claiming a binary that is not on disk.
+
 ## Versioning
 
 `Version` is a string constant in `metadata.go` (currently `"v0.10.0"`). The `upd` command checks `pgulb/puff` for a newer release and self-updates.
